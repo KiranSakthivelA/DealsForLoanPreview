@@ -1,11 +1,24 @@
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, CheckSquare, Calendar, BarChart2, Users, Settings, HelpCircle, LogOut } from 'lucide-react';
 
-export default function Sidebar() {
+export default function Sidebar({ onClose }) {
   const location = useLocation();
 
+  const handleLinkClick = () => {
+    if (onClose) onClose();
+  };
+
   return (
-    <aside className="sidebar">
+    <aside className="sidebar" style={{ position: 'relative' }}>
+      {onClose && (
+        <button 
+          onClick={onClose} 
+          className="mobile-close-btn"
+          style={{ position: 'absolute', top: '1.25rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', display: window.innerWidth <= 768 ? 'block' : 'none' }}
+        >
+          ✕
+        </button>
+      )}
       <div className="sidebar-header">
         <div style={{ width: '28px', height: '28px', borderRadius: '50%', border: '3px solid var(--primary-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <div style={{ width: '10px', height: '10px', backgroundColor: 'var(--primary-color)', borderRadius: '50%' }}></div>
@@ -20,6 +33,7 @@ export default function Sidebar() {
         
         <Link 
           to="/admin" 
+          onClick={handleLinkClick}
           className={`nav-item ${location.pathname === '/admin' ? 'active' : ''}`}
         >
           <LayoutDashboard size={18} />
@@ -28,6 +42,7 @@ export default function Sidebar() {
         
         <Link 
           to="/" 
+          onClick={handleLinkClick}
           className={`nav-item ${location.pathname === '/' ? 'active' : ''}`}
         >
           <CheckSquare size={18} />

@@ -165,6 +165,17 @@ p {
   flex-direction: column;
   min-width: 0;
   border-radius: var(--radius-xl);
+  transition: all 0.3s;
+}
+
+/* Mobile Nav Toggle */
+.mobile-nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 0.5rem;
 }
 
 /* Top Header */
@@ -504,6 +515,87 @@ p {
 .split-sidebar {
   width: 320px;
   flex-shrink: 0;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 0;
+    gap: 0;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 280px;
+    height: 100vh;
+    border-radius: 0;
+    z-index: 1000;
+    transition: left 0.3s ease;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .mobile-nav-toggle {
+    display: block;
+  }
+
+  .main-content {
+    border-radius: 0;
+  }
+
+  .top-header {
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    background: var(--background-color);
+    z-index: 100;
+  }
+
+  .split-layout {
+    flex-direction: column-reverse;
+  }
+
+  .split-sidebar {
+    width: 100%;
+  }
+
+  .card {
+    padding: 1.5rem !important;
+    border-radius: 16px !important;
+  }
+
+  h2 {
+    font-size: 1.75rem !important;
+  }
+
+  .form-row, .form-row-3 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Overlay for mobile sidebar */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    display: none;
+  }
+
+  .sidebar-overlay.open {
+    display: block;
+  }
 }
 
 /* Docs Grid */
