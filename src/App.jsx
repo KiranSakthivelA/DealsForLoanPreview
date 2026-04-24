@@ -18,12 +18,7 @@ function App() {
           onClick={() => setIsSidebarOpen(false)}
         ></div>
 
-        <div className={`sidebar-wrapper ${isSidebarOpen ? 'open' : ''}`} style={{ display: 'contents' }}>
-          {/* We need to pass a prop or use CSS to toggle the sidebar class */}
-          <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-             <Sidebar onClose={() => setIsSidebarOpen(false)} />
-          </div>
-        </div>
+        <Sidebar onClose={() => setIsSidebarOpen(false)} isOpen={isSidebarOpen} />
         
         <div className="main-content">
           <header className="top-header" style={{ justifyContent: 'space-between' }}>

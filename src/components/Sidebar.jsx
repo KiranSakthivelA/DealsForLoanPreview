@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, CheckSquare, Calendar, BarChart2, Users, Settings, HelpCircle, LogOut } from 'lucide-react';
 
-export default function Sidebar({ onClose }) {
+export default function Sidebar({ onClose, isOpen }) {
   const location = useLocation();
 
   const handleLinkClick = () => {
@@ -9,7 +9,7 @@ export default function Sidebar({ onClose }) {
   };
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       {onClose && (
         <button 
           onClick={onClose} 
