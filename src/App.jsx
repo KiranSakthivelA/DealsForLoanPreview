@@ -5,63 +5,6 @@ import ClientForm from './pages/ClientForm';
 import AdminDashboard from './pages/AdminDashboard';
 import { Menu } from 'lucide-react';
 
-function AdminLogin({ onLogin }) {
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    // Default password for preview: admin123
-    if (password === 'admin123') {
-      localStorage.setItem('dfl_admin_auth', 'true');
-      onLogin();
-    } else {
-      setError('Invalid password');
-    }
-  };
-
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', width: '100vw', padding: '1rem', backgroundColor: 'var(--background-color)' }}>
-      <div className="card" style={{ padding: '2.5rem', width: '100%', maxWidth: '400px', textAlign: 'center' }}>
-        <div style={{ width: '48px', height: '48px', borderRadius: '50%', border: '4px solid var(--primary-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
-          <div style={{ width: '16px', height: '16px', backgroundColor: 'var(--primary-color)', borderRadius: '50%' }}></div>
-        </div>
-        <h2 style={{ marginBottom: '0.5rem' }}>Admin Portal</h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>Please enter the admin password to access the dashboard.</p>
-        
-        <form onSubmit={handleLogin}>
-          <div className="form-group">
-            <input 
-              type="password" 
-              className="form-control" 
-              placeholder="Enter password..." 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{ textAlign: 'center' }}
-            />
-          </div>
-          {error && <div style={{ color: 'var(--error-color)', fontSize: '0.85rem', marginBottom: '1rem', fontWeight: 600 }}>{error}</div>}
-          <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>Login</button>
-        </form>
-        <p style={{ marginTop: '1.5rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>Hint: The password is <b>admin123</b></p>
-      </div>
-    </div>
-  );
-}
-
-// Protected Route Wrapper
-function ProtectedAdminRoute({ children }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    localStorage.getItem('dfl_admin_auth') === 'true'
-  );
-
-  if (!isAuthenticated) {
-    return <AdminLogin onLogin={() => setIsAuthenticated(true)} />;
-  }
-
-  return children;
-}
-
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -106,11 +49,7 @@ function App() {
               <Route path="/" element={<ClientForm />} />
               <Route 
                 path="/admin" 
-                element={
-                  <ProtectedAdminRoute>
-                    <AdminDashboard />
-                  </ProtectedAdminRoute>
-                } 
+                element={<AdminDashboard />} 
               />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
