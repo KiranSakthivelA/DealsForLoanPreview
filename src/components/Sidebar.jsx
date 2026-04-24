@@ -1,0 +1,75 @@
+import { Link, useLocation } from 'react-router-dom';
+import { LayoutDashboard, CheckSquare, Calendar, BarChart2, Users, Settings, HelpCircle, LogOut } from 'lucide-react';
+
+export default function Sidebar() {
+  const location = useLocation();
+
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-header">
+        <div style={{ width: '28px', height: '28px', borderRadius: '50%', border: '3px solid var(--primary-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ width: '10px', height: '10px', backgroundColor: 'var(--primary-color)', borderRadius: '50%' }}></div>
+        </div>
+        Deals For Loan
+      </div>
+      
+      <nav className="sidebar-nav">
+        <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0.5rem 0 0.25rem 0.75rem' }}>
+          Menu
+        </div>
+        
+        <Link 
+          to="/admin" 
+          className={`nav-item ${location.pathname === '/admin' ? 'active' : ''}`}
+        >
+          <LayoutDashboard size={18} />
+          Dashboard
+        </Link>
+        
+        <Link 
+          to="/" 
+          className={`nav-item ${location.pathname === '/' ? 'active' : ''}`}
+        >
+          <CheckSquare size={18} />
+          Client Form
+        </Link>
+
+        <Link to="#" className="nav-item">
+          <Calendar size={18} />
+          Calendar
+        </Link>
+
+        <Link to="#" className="nav-item">
+          <BarChart2 size={18} />
+          Analytics
+        </Link>
+
+        <Link to="#" className="nav-item">
+          <Users size={18} />
+          Team
+        </Link>
+
+        <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '1rem 0 0.25rem 0.75rem' }}>
+          General
+        </div>
+
+        <Link to="#" className="nav-item">
+          <Settings size={18} />
+          Settings
+        </Link>
+
+        <Link to="#" className="nav-item">
+          <HelpCircle size={18} />
+          Help
+        </Link>
+
+        <div style={{ marginTop: 'auto' }}>
+          <Link to="#" className="nav-item" style={{ color: 'var(--text-secondary)' }}>
+            <LogOut size={18} />
+            Logout
+          </Link>
+        </div>
+      </nav>
+    </aside>
+  );
+}
