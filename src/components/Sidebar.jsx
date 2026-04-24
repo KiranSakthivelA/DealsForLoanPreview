@@ -9,7 +9,7 @@ export default function Sidebar({ onClose }) {
   };
 
   return (
-    <aside className="sidebar" style={{ position: 'relative' }}>
+    <aside className="sidebar">
       {onClose && (
         <button 
           onClick={onClose} 

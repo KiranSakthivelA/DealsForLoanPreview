@@ -525,14 +525,15 @@ p {
   }
 
   .sidebar {
-    position: fixed;
+    position: fixed !important;
     top: 0;
     left: -100%;
     width: 280px;
     height: 100vh;
     border-radius: 0;
     z-index: 1000;
-    transition: left 0.3s ease;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.1);
   }
 
   .sidebar.open {
