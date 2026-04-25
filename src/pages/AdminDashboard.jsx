@@ -5,11 +5,13 @@ import {
   ArrowUpRight, Plus, FolderDown
 } from 'lucide-react';
 import { getAllSubmissions, deleteSubmission, exportToCSV, REQUIRED_DOCUMENTS } from '../store/db';
+import ClientForm from './ClientForm';
 
 export default function AdminDashboard() {
   const [submissions, setSubmissions] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLead, setSelectedLead] = useState(null);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -47,6 +49,21 @@ export default function AdminDashboard() {
   const totalDisbursements = submissions.reduce((acc, curr) => acc + (parseFloat(curr.loanAmount) || 0), 0);
   const formattedDisbursements = new Intl.NumberFormat('en-IN', { maximumSignificantDigits: 3 }).format(totalDisbursements);
 
+  if (showForm) {
+    return (
+      <div style={{ padding: '1rem' }}>
+        <button 
+          onClick={() => { setShowForm(false); loadData(); }} 
+          className="btn btn-secondary" 
+          style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+        >
+          ← Back to Dashboard
+        </button>
+        <ClientForm />
+      </div>
+    );
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -56,8 +73,8 @@ export default function AdminDashboard() {
         </div>
         
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <button className="btn btn-primary" onClick={() => window.location.href = '/'}>
-            <Plus size={18} /> Add Project
+          <button className="btn btn-primary" onClick={() => setShowForm(true)}>
+            <Plus size={18} /> Client Form
           </button>
           <button className="btn btn-secondary" onClick={handleExport}>
              Import Data
