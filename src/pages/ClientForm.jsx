@@ -13,6 +13,24 @@ import {
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1 MB
 
+const InputWithIcon = ({ icon: Icon, label, ...props }) => (
+  <div className="form-group" style={{ marginBottom: 0 }}>
+    <label className="form-label" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block', fontWeight: 600 }}>{label}</label>
+    <div style={{ position: 'relative' }}>
+      <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
+        <Icon size={18} />
+      </div>
+      <input 
+        className="form-control" 
+        style={{ paddingLeft: '44px', height: '52px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '12px', fontSize: '0.95rem', width: '100%', transition: 'all 0.2s', outline: 'none' }}
+        onFocus={(e) => { e.target.style.borderColor = 'var(--primary-light)'; e.target.style.boxShadow = '0 0 0 4px var(--primary-lighter)'; e.target.previousSibling.style.color = 'var(--primary-light)'; }}
+        onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; e.target.previousSibling.style.color = 'var(--text-muted)'; }}
+        {...props} 
+      />
+    </div>
+  </div>
+);
+
 export default function ClientForm() {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -151,24 +169,7 @@ export default function ClientForm() {
     );
   }
 
-  // Helper component for input fields with icons
-  const InputWithIcon = ({ icon: Icon, label, ...props }) => (
-    <div className="form-group" style={{ marginBottom: 0 }}>
-      <label className="form-label" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block', fontWeight: 600 }}>{label}</label>
-      <div style={{ position: 'relative' }}>
-        <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
-          <Icon size={18} />
-        </div>
-        <input 
-          className="form-control" 
-          style={{ paddingLeft: '44px', height: '52px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '12px', fontSize: '0.95rem', width: '100%', transition: 'all 0.2s', outline: 'none' }}
-          onFocus={(e) => { e.target.style.borderColor = 'var(--primary-light)'; e.target.style.boxShadow = '0 0 0 4px var(--primary-lighter)'; e.target.previousSibling.style.color = 'var(--primary-light)'; }}
-          onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; e.target.previousSibling.style.color = 'var(--text-muted)'; }}
-          {...props} 
-        />
-      </div>
-    </div>
-  );
+
 
   return (
     <div style={{ maxWidth: '840px', margin: '0 auto', paddingBottom: '3rem' }}>
