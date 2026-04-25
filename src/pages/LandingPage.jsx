@@ -24,13 +24,24 @@ export default function LandingPage() {
     <div className="landing-page" style={{ position: 'relative', overflowX: 'hidden', backgroundColor: '#f8fafc' }}>
       
       {/* Background Grid Pattern */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: 'radial-gradient(circle at 1px 1px, #e5e7eb 1px, transparent 0)', backgroundSize: '32px 32px', opacity: 0.6, zIndex: 0, pointerEvents: 'none' }}></div>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: 'radial-gradient(circle at 1px 1px, #e5e7eb 1px, transparent 0)', backgroundSize: '32px 32px', opacity: 0.6, zIndex: 0, pointerEvents: 'none', animation: 'move-background 30s linear infinite' }}></div>
+      <style>{`
+        @keyframes move-background {
+          from { background-position: 0 0; }
+          to { background-position: 32px 32px; }
+        }
+      `}</style>
 
       {/* Premium Background Gradients */}
       <div style={{ position: 'absolute', top: '-10%', right: '-5%', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(243, 158, 30, 0.15) 0%, transparent 70%)', filter: 'blur(100px)', zIndex: 0, pointerEvents: 'none' }}></div>
       <div style={{ position: 'absolute', top: '20%', left: '-10%', width: '700px', height: '700px', background: 'radial-gradient(circle, rgba(45, 46, 137, 0.1) 0%, transparent 70%)', filter: 'blur(100px)', zIndex: 0, pointerEvents: 'none' }}></div>
       <div style={{ position: 'absolute', bottom: '10%', right: '10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(243, 158, 30, 0.08) 0%, transparent 70%)', filter: 'blur(80px)', zIndex: 0, pointerEvents: 'none' }}></div>
       <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '1000px', height: '1000px', background: 'radial-gradient(circle, rgba(45, 46, 137, 0.03) 0%, transparent 80%)', filter: 'blur(120px)', zIndex: 0, pointerEvents: 'none' }}></div>
+
+      {/* Abstract Floating Shapes */}
+      <div className="mobile-hide" style={{ position: 'absolute', top: '15%', left: '5%', width: '150px', height: '150px', background: 'rgba(243, 158, 30, 0.05)', borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%', filter: 'blur(40px)', animation: 'float 8s infinite ease-in-out', zIndex: 0 }}></div>
+      <div className="mobile-hide" style={{ position: 'absolute', top: '40%', right: '10%', width: '200px', height: '200px', background: 'rgba(45, 46, 137, 0.05)', borderRadius: '50%', filter: 'blur(50px)', animation: 'float 12s infinite ease-in-out reverse', zIndex: 0 }}></div>
+      <div className="mobile-hide" style={{ position: 'absolute', bottom: '20%', left: '15%', width: '180px', height: '180px', background: 'rgba(243, 158, 30, 0.03)', borderRadius: '40% 60% 60% 40% / 40% 40% 60% 60%', filter: 'blur(45px)', animation: 'float 10s infinite ease-in-out 2s', zIndex: 0 }}></div>
 
       {/* Hero Section & Quick Estimate Form */}
       <section style={{ padding: '4rem 0', position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', minHeight: '85vh' }}>
@@ -53,7 +64,7 @@ export default function LandingPage() {
             </p>
             
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <Link to="/apply" className="btn btn-primary" style={{ padding: '1.25rem 2.5rem', fontSize: '1.1rem', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'var(--accent-color)' }}>
+              <Link to="/apply" className="btn shine-effect" style={{ background: 'linear-gradient(135deg, var(--accent-color) 0%, #1a1b5d 100%)', color: 'white', padding: '1.25rem 2.5rem', fontSize: '1.1rem', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 10px 25px rgba(45, 46, 137, 0.25)', transition: 'all 0.3s' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0) scale(1)'}>
                 Get Started <ArrowRight size={20} />
               </Link>
             </div>
@@ -93,20 +104,20 @@ export default function LandingPage() {
               <form onSubmit={e => { e.preventDefault(); window.location.href = '/apply'; }}>
                 <div style={{ marginBottom: '1.25rem' }}>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Full Name</label>
-                  <input type="text" required placeholder="John Doe" style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '0.95rem', outline: 'none' }} />
+                  <input type="text" className="form-control" required placeholder="John Doe" style={{ borderRadius: '12px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.03)' }} />
                 </div>
                 <div style={{ marginBottom: '1.25rem' }}>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Phone Number</label>
-                  <input type="tel" required placeholder="+91 00000 00000" style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '0.95rem', outline: 'none' }} />
+                  <input type="tel" className="form-control" required placeholder="+91 00000 00000" style={{ borderRadius: '12px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.03)' }} />
                 </div>
                 <div style={{ marginBottom: '2rem' }}>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Loan Type</label>
-                  <select required style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '0.95rem', outline: 'none', backgroundColor: 'white', cursor: 'pointer' }}>
+                  <select className="form-control" required style={{ borderRadius: '12px', height: '50px', cursor: 'pointer', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.03)' }}>
                     <option value="" disabled selected>Select Loan Type</option>
                     {LOAN_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
                   </select>
                 </div>
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1rem', borderRadius: '8px', backgroundColor: 'var(--primary-color)' }}>
+                <button type="submit" className="btn btn-primary shine-effect" style={{ width: '100%', padding: '1.1rem', fontSize: '1.1rem', borderRadius: '12px', fontWeight: 700 }}>
                   Get Estimate Now
                 </button>
               </form>
@@ -117,7 +128,18 @@ export default function LandingPage() {
       </section>
 
       {/* Stats Banner */}
-      <section style={{ background: 'linear-gradient(135deg, var(--accent-color) 0%, #1a1b5d 100%)', padding: '3rem 0', position: 'relative', zIndex: 2, boxShadow: '0 10px 30px rgba(45, 46, 137, 0.2)' }}>
+      <section style={{ 
+        background: 'linear-gradient(135deg, #1e1b4b 0%, #2d2e89 50%, #1e1b4b 100%)', 
+        padding: '4rem 0', 
+        position: 'relative', 
+        zIndex: 2, 
+        boxShadow: '0 20px 50px rgba(45, 46, 137, 0.3)',
+        overflow: 'hidden'
+      }}>
+        {/* Mesh Effect Overlays */}
+        <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '60%', height: '200%', background: 'radial-gradient(circle, rgba(243, 158, 30, 0.05) 0%, transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }}></div>
+        <div style={{ position: 'absolute', bottom: '-50%', right: '-10%', width: '50%', height: '200%', background: 'radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 60%)', filter: 'blur(50px)', pointerEvents: 'none' }}></div>
+        
         <div className="container stats-flex">
           <div style={{ textAlign: 'center', color: 'white' }}>
             <div style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.25rem' }}>1,250+</div>

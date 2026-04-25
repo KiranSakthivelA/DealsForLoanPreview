@@ -50,6 +50,35 @@
   border: 1px solid var(--glass-border);
 }
 
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  20% { left: 100%; }
+  100% { left: 100%; }
+}
+
+.shine-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-effect::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -100%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: rotate(30deg);
+  animation: shine 6s infinite;
+}
+
 .gradient-text {
   background: linear-gradient(135deg, var(--primary-color) 0%, #ff8c00 100%);
   -webkit-background-clip: text;
@@ -254,24 +283,47 @@ p {
 }
 
 .btn-primary {
-  background-color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #ff8c00 100%);
   color: white;
+  border: none;
+  box-shadow: 0 4px 15px rgba(243, 158, 30, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -100%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: rotate(30deg);
+  animation: shine 4s infinite;
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-dark);
-  box-shadow: 0 4px 12px rgba(19, 99, 59, 0.2);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(243, 158, 30, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .btn-secondary {
   background-color: white;
-  color: var(--text-primary);
+  color: var(--accent-color);
   border-color: var(--border-color);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .btn-secondary:hover {
-  border-color: var(--text-secondary);
+  border-color: var(--primary-light);
   background-color: #f9fafb;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
 }
 
 /* Cards */
@@ -465,8 +517,10 @@ p {
 
 .form-control:focus {
   outline: none;
-  border-color: var(--primary-light);
-  box-shadow: 0 0 0 4px var(--primary-lighter);
+  border-color: var(--primary-color);
+  background-color: white;
+  box-shadow: 0 0 0 4px rgba(243, 158, 30, 0.15);
+  transform: translateY(-1px);
 }
 
 .form-row {

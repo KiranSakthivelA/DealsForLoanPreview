@@ -102,7 +102,20 @@ export default function Navbar() {
         <span style={{ backgroundColor: 'red', color: 'white', fontSize: '0.65rem', padding: '0.15rem 0.35rem', borderRadius: '4px', fontWeight: 800 }}>NEW</span>
         Check Cibil Score
       </Link>
-      <Link to="/apply" onClick={() => setIsMobileMenuOpen(false)} className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontSize: '0.95rem', borderRadius: '8px', backgroundColor: 'var(--accent-color)', whiteSpace: 'nowrap', color: 'white' }}>
+      <Link 
+        to="/apply" 
+        onClick={() => setIsMobileMenuOpen(false)} 
+        className="btn btn-primary" 
+        style={{ 
+          padding: '0.75rem 1.5rem', 
+          fontSize: '0.95rem', 
+          borderRadius: '10px', 
+          whiteSpace: 'nowrap', 
+          color: 'white',
+          background: 'linear-gradient(135deg, var(--accent-color) 0%, #1a1b5d 100%)',
+          boxShadow: '0 4px 12px rgba(45, 46, 137, 0.2)'
+        }}
+      >
         Apply Now
       </Link>
     </>
