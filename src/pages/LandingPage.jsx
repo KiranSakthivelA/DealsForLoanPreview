@@ -88,7 +88,7 @@ export default function LandingPage() {
       </svg>
 
       {/* Hero Section & Quick Estimate Form */}
-      <section style={{ padding: '4rem 0', position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', minHeight: '85vh' }}>
+      <section className="hero-section" style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center' }}>
         <div className="container hero-grid">
           
           {/* Left Hero Content */}
@@ -97,9 +97,9 @@ export default function LandingPage() {
               <ShieldCheck size={16} /> TRUSTED FINANCIAL PARTNER
             </div>
             
-            <h1 style={{ fontSize: '4.5rem', color: 'var(--accent-color)', marginBottom: '1.5rem', lineHeight: '1.05', letterSpacing: '-0.03em' }}>
-              Banking <br/>
-              Solutions For <br/>
+            <h1 className="hero-title" style={{ color: 'var(--accent-color)', marginBottom: '1.5rem', lineHeight: '1.05', letterSpacing: '-0.03em' }}>
+              Banking <br className="mobile-hide-br" />
+              Solutions For <br className="mobile-hide-br" />
               <span className="gradient-text">Everyday Needs.</span>
             </h1>
             
@@ -141,7 +141,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="glass" style={{ padding: '2.5rem', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', position: 'relative', zIndex: 2, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <div className="glass hero-form-container" style={{ borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', position: 'relative', zIndex: 2, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
               <h3 style={{ fontSize: '1.5rem', color: 'var(--accent-color)', marginBottom: '0.5rem', fontWeight: 800 }}>Quick Estimate</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '2rem' }}>Fill in your details to get a fast loan estimate.</p>
               
@@ -187,21 +187,21 @@ export default function LandingPage() {
             </div>
             <div style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Professionals</div>
           </div>
-          <div style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '0 2rem' }}></div>
+          <div className="mobile-hide" style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '0 2rem' }}></div>
           <div style={{ textAlign: 'center', color: 'white', flex: 1 }}>
             <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>
               <CountUp end={75} suffix="+" />
             </div>
             <div style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Cities Covered</div>
           </div>
-          <div style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '0 2rem' }}></div>
+          <div className="mobile-hide" style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '0 2rem' }}></div>
           <div style={{ textAlign: 'center', color: 'white', flex: 1 }}>
             <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>
               <CountUp end={275} suffix="+" />
             </div>
             <div style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Partner Banks</div>
           </div>
-          <div style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '0 2rem' }}></div>
+          <div className="mobile-hide" style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '0 2rem' }}></div>
           <div style={{ textAlign: 'center', color: 'white', flex: 1 }}>
             <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>
               <CountUp end={2} prefix="$" suffix="B+" />
@@ -212,7 +212,7 @@ export default function LandingPage() {
       </section>
 
       {/* Tailored Solutions Section */}
-      <section style={{ padding: '8rem 4rem', position: 'relative', zIndex: 1, backgroundColor: 'white' }}>
+      <section className="tailored-section" style={{ position: 'relative', zIndex: 1, backgroundColor: 'white' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', textAlign: 'center' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'rgba(45, 46, 137, 0.05)', color: 'var(--accent-color)', padding: '0.5rem 1rem', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700, marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
             🔗 OUR FEATURES & SERVICES
@@ -342,7 +342,7 @@ export default function LandingPage() {
 
 
       {/* Services Grid (We Facilitate) */}
-      <section style={{ padding: '6rem 4rem 4rem', position: 'relative', zIndex: 1, backgroundColor: 'var(--background-color)' }}>
+      <section className="services-section" style={{ position: 'relative', zIndex: 1, backgroundColor: 'var(--background-color)' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           <div style={{ marginBottom: '4rem', textAlign: 'center' }}>
             <h2 className="gradient-text" style={{ fontSize: '2.5rem', marginBottom: '1.25rem', fontWeight: 800 }}>We Facilitate</h2>
@@ -374,7 +374,7 @@ export default function LandingPage() {
       </section>
 
       {/* Insurance Grid */}
-      <section style={{ padding: '0 4rem 6rem', position: 'relative', zIndex: 1, backgroundColor: 'var(--background-color)' }}>
+      <section className="insurance-section" style={{ position: 'relative', zIndex: 1, backgroundColor: 'var(--background-color)' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           <div style={{ marginBottom: '4rem', textAlign: 'center' }}>
             <h2 className="gradient-text" style={{ fontSize: '2.5rem', marginBottom: '1.25rem', fontWeight: 800 }}>Insurance</h2>

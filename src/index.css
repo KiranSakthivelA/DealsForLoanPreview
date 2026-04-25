@@ -643,6 +643,13 @@ p {
   padding: 0 4rem;
 }
 
+.form-container {
+  width: 100%;
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
 @media (max-width: 1024px) {
   .container { padding: 0 2rem; }
 }
@@ -663,6 +670,32 @@ p {
   display: flex;
   justify-content: space-around;
   align-items: center;
+  flex-wrap: nowrap;
+}
+
+.hero-section {
+  padding: 8rem 0 6rem;
+  min-height: 85vh;
+}
+
+.hero-title {
+  font-size: 4.5rem;
+}
+
+.hero-form-container {
+  padding: 2.5rem;
+}
+
+.tailored-section {
+  padding: 8rem 4rem;
+}
+
+.services-section {
+  padding: 6rem 4rem 4rem;
+}
+
+.insurance-section {
+  padding: 0 4rem 6rem;
 }
 
 .tailored-grid {
@@ -701,14 +734,79 @@ p {
 }
 
 @media (max-width: 768px) {
-  .hero-grid h1 { font-size: 3rem !important; }
+  .hero-section {
+    padding: 4rem 0 2rem;
+    min-height: auto;
+  }
+
+  .hero-title { 
+    font-size: 2.75rem !important; 
+    line-height: 1.1;
+  }
+
+  .hero-form-container {
+    padding: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .tailored-section {
+    padding: 4rem 1.5rem;
+  }
+
+  .services-section {
+    padding: 4rem 1.5rem;
+  }
+
+  .insurance-section {
+    padding: 0 1.5rem 4rem;
+  }
   
-  .stats-flex > div { width: 100%; }
+  .stats-flex { 
+    flex-direction: column;
+    gap: 2.5rem; 
+  }
+  
+  .stats-flex > div { 
+    width: 100%; 
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 1.5rem;
+  }
+
+  .stats-flex > div:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
   
   .facilitate-grid { grid-template-columns: 1fr; }
   .insurance-grid { grid-template-columns: 1fr; }
   
   .landing-page section { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
+
+  .profile-upload-container {
+    flex-direction: column !important;
+    text-align: center;
+    gap: 1.5rem !important;
+    padding: 1.5rem !important;
+  }
+
+  .nav-dropdown-container .dropdown-menu {
+    position: static !important;
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    box-shadow: none !important;
+    padding: 0 0 0 1rem !important;
+    background: transparent !important;
+    display: none;
+  }
+
+  .nav-dropdown-container:hover .dropdown-menu {
+    display: block;
+  }
+
+  .mobile-hide-br {
+    display: none;
+  }
 }
 
 /* Docs Grid */

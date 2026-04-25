@@ -172,7 +172,7 @@ export default function ClientForm() {
 
 
   return (
-    <div style={{ maxWidth: '840px', margin: '0 auto', paddingBottom: '3rem' }}>
+    <div className="form-container">
       
       {/* Premium Header */}
       <div style={{ marginBottom: '2.5rem', textAlign: 'center', padding: '2rem 0' }}>
@@ -194,13 +194,13 @@ export default function ClientForm() {
         )}
 
         {/* Section 1: Profile */}
-        <div className="card" style={{ padding: '3rem', borderRadius: '24px', marginBottom: '2rem', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+        <div className="card" style={{ marginBottom: '2rem', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
             <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: 'var(--primary-color)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.2rem' }}>1</div>
             <h3 style={{ fontSize: '1.5rem', margin: 0 }}>Applicant Identity</h3>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '2.5rem', backgroundColor: '#f8fafc', padding: '2rem', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
+          <div className="profile-upload-container" style={{ display: 'flex', alignItems: 'center', gap: '2.5rem', backgroundColor: '#f8fafc', padding: '2rem', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
             <div style={{ position: 'relative' }}>
               <img 
                 src={profilePic || 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80'} 
@@ -232,7 +232,7 @@ export default function ClientForm() {
         </div>
 
         {/* Section 2: Personal Details */}
-        <div className="card" style={{ padding: '3rem', borderRadius: '24px', marginBottom: '2rem', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+        <div className="card" style={{ marginBottom: '2rem', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
             <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: 'var(--primary-color)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.2rem' }}>2</div>
             <h3 style={{ fontSize: '1.5rem', margin: 0 }}>Personal Details</h3>
@@ -294,7 +294,7 @@ export default function ClientForm() {
         </div>
 
         {/* Section 3: Loan Requirement */}
-        <div className="card" style={{ padding: '3rem', borderRadius: '24px', marginBottom: '2rem', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+        <div className="card" style={{ marginBottom: '2rem', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
             <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: 'var(--primary-color)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.2rem' }}>3</div>
             <h3 style={{ fontSize: '1.5rem', margin: 0 }}>Loan Requirements</h3>
@@ -334,7 +334,7 @@ export default function ClientForm() {
         </div>
 
         {/* Section 4: Documents Upload */}
-        <div className="card" style={{ padding: '3rem', borderRadius: '24px', marginBottom: '3rem', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+        <div className="card" style={{ marginBottom: '3rem', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: 'var(--primary-color)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.2rem' }}>4</div>

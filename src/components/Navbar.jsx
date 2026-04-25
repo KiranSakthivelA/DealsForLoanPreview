@@ -25,7 +25,10 @@ function NavDropdown({ title, items }) {
       onMouseLeave={() => setIsOpen(false)}
       style={{ position: 'relative' }}
     >
-      <div style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--accent-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0' }}>
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--accent-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0' }}
+      >
         {title} <ChevronDown size={16} style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
       </div>
       
@@ -113,7 +116,8 @@ export default function Navbar() {
           whiteSpace: 'nowrap', 
           color: 'white',
           background: 'linear-gradient(135deg, var(--accent-color) 0%, #1a1b5d 100%)',
-          boxShadow: '0 4px 12px rgba(45, 46, 137, 0.2)'
+          boxShadow: '0 4px 12px rgba(45, 46, 137, 0.2)',
+          textAlign: 'center'
         }}
       >
         Apply Now
@@ -160,9 +164,26 @@ export default function Navbar() {
 
       <style>{`
         @media (max-width: 1024px) {
-          nav { padding: 1rem 2rem !important; }
+          nav { padding: 1rem 1.25rem !important; }
           .desktop-only { display: none !important; }
           .mobile-toggle { display: block !important; }
+          
+          .dropdown-menu {
+            min-width: 100% !important;
+            box-shadow: none !important;
+            border: none !important;
+            background: #f8fafc !important;
+            margin-top: 0.5rem !important;
+          }
+          
+          .dropdown-menu > div {
+            grid-template-columns: 1fr !important;
+            min-width: 0 !important;
+          }
+
+          .dropdown-item {
+            padding: 0.5rem 1rem !important;
+          }
         }
         
         .dropdown-menu.show {
