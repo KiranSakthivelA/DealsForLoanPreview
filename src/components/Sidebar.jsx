@@ -38,9 +38,9 @@ export default function Sidebar({ onClose, isOpen }) {
         </Link>
         
         <Link 
-          to="/" 
+          to="/apply" 
           onClick={handleLinkClick}
-          className={`nav-item ${location.pathname === '/' ? 'active' : ''}`}
+          className={`nav-item ${location.pathname === '/apply' ? 'active' : ''}`}
         >
           <CheckSquare size={18} />
           Client Form
