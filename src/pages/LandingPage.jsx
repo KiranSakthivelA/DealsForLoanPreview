@@ -344,26 +344,28 @@ export default function LandingPage() {
       {/* Services Grid (We Facilitate) */}
       <section style={{ padding: '6rem 4rem 4rem', position: 'relative', zIndex: 1, backgroundColor: 'var(--background-color)' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          <div style={{ marginBottom: '3rem' }}>
-            <h2 style={{ fontSize: '2rem', color: '#1f2937', marginBottom: '0.5rem', fontWeight: 700 }}>We Facilitate</h2>
-            <p style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>
-              Wide Range of Financial Products That suits your customer's needs!
+          <div style={{ marginBottom: '4rem', textAlign: 'center' }}>
+            <h2 className="gradient-text" style={{ fontSize: '2.5rem', marginBottom: '1.25rem', fontWeight: 800 }}>We Facilitate</h2>
+            <div style={{ width: '60px', height: '4px', background: 'var(--primary-color)', margin: '0 auto 1.5rem', borderRadius: '2px' }}></div>
+            <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto' }}>
+              A wide range of financial products meticulously designed to suit your customers' diverse needs.
             </p>
           </div>
 
           <div className="facilitate-grid">
             {products.map((srv, idx) => (
-              <div key={idx} style={{ backgroundColor: 'white', borderRadius: '8px', padding: '1.5rem', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', display: 'flex', flexDirection: 'column', transition: 'box-shadow 0.2s, transform 0.2s', cursor: 'pointer', border: '1px solid rgba(0,0,0,0.02)' }} onMouseOver={e => {e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.08)'; e.currentTarget.style.transform = 'translateY(-4px)'}} onMouseOut={e => {e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.03)'; e.currentTarget.style.transform = 'translateY(0)'}}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                  <h3 style={{ fontSize: '1.1rem', color: '#1f2937', margin: 0, fontWeight: 600 }}>{srv.title}</h3>
-                  <div style={{ fontSize: '1.5rem' }}>{srv.icon}</div>
+              <div key={idx} className="modern-service-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+                  <div className="modern-icon-box">
+                    <span style={{ fontSize: '1.75rem' }}>{srv.icon}</span>
+                  </div>
+                  <ChevronRight size={18} color="var(--text-muted)" className="card-arrow" />
                 </div>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.5', flex: 1 }}>{srv.desc}</p>
-                <Link to="/apply" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: 'var(--primary-color)', fontSize: '0.9rem', fontWeight: 600, textDecoration: 'none' }}>
+                <h3 style={{ fontSize: '1.25rem', color: 'var(--accent-color)', marginBottom: '1rem', fontWeight: 700 }}>{srv.title}</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '2rem', lineHeight: '1.6', flex: 1 }}>{srv.desc}</p>
+                <Link to="/apply" className="modern-card-link">
                   Check Eligibility 
-                  <span style={{ backgroundColor: 'var(--primary-lighter)', color: 'var(--primary-color)', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '4px' }}>
-                    <ChevronRight size={12} strokeWidth={3} />
-                  </span>
+                  <ArrowRight size={16} />
                 </Link>
               </div>
             ))}
@@ -374,26 +376,28 @@ export default function LandingPage() {
       {/* Insurance Grid */}
       <section style={{ padding: '0 4rem 6rem', position: 'relative', zIndex: 1, backgroundColor: 'var(--background-color)' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          <div style={{ marginBottom: '3rem' }}>
-            <h2 style={{ fontSize: '2rem', color: '#1f2937', marginBottom: '0.5rem', fontWeight: 700 }}>Insurance</h2>
-            <p style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>
-              Wide Range of Insurance Products
+          <div style={{ marginBottom: '4rem', textAlign: 'center' }}>
+            <h2 className="gradient-text" style={{ fontSize: '2.5rem', marginBottom: '1.25rem', fontWeight: 800 }}>Insurance</h2>
+            <div style={{ width: '60px', height: '4px', background: '#22c55e', margin: '0 auto 1.5rem', borderRadius: '2px' }}></div>
+            <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto' }}>
+              Comprehensive protection plans designed to safeguard your life, health, and assets.
             </p>
           </div>
 
           <div className="insurance-grid">
             {insurance.map((srv, idx) => (
-              <div key={idx} style={{ backgroundColor: 'white', borderRadius: '8px', padding: '1.5rem', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', display: 'flex', flexDirection: 'column', transition: 'box-shadow 0.2s, transform 0.2s', cursor: 'pointer', border: '1px solid rgba(0,0,0,0.02)' }} onMouseOver={e => {e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.08)'; e.currentTarget.style.transform = 'translateY(-4px)'}} onMouseOut={e => {e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.03)'; e.currentTarget.style.transform = 'translateY(0)'}}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                  <h3 style={{ fontSize: '1.1rem', color: '#1f2937', margin: 0, fontWeight: 600 }}>{srv.title}</h3>
-                  <div style={{ fontSize: '1.5rem' }}>{srv.icon}</div>
+              <div key={idx} className="modern-service-card" style={{ borderColor: idx === 1 ? 'rgba(34, 197, 94, 0.1)' : 'rgba(0,0,0,0.03)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+                  <div className="modern-icon-box" style={{ background: 'rgba(34, 197, 94, 0.08)', color: '#22c55e' }}>
+                    <span style={{ fontSize: '1.75rem' }}>{srv.icon}</span>
+                  </div>
+                  <ChevronRight size={18} color="var(--text-muted)" className="card-arrow" />
                 </div>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.5', flex: 1 }}>{srv.desc}</p>
-                <Link to="/apply" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#374151', fontSize: '0.9rem', fontWeight: 600, textDecoration: 'none' }}>
+                <h3 style={{ fontSize: '1.25rem', color: 'var(--accent-color)', marginBottom: '1rem', fontWeight: 700 }}>{srv.title}</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '2rem', lineHeight: '1.6', flex: 1 }}>{srv.desc}</p>
+                <Link to="/apply" className="modern-card-link" style={{ color: '#22c55e' }}>
                   {srv.linkText}
-                  <span style={{ backgroundColor: 'var(--primary-lighter)', color: 'var(--primary-color)', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '4px' }}>
-                    <ChevronRight size={12} strokeWidth={3} />
-                  </span>
+                  <ArrowRight size={16} />
                 </Link>
               </div>
             ))}
@@ -509,6 +513,68 @@ export default function LandingPage() {
         .tailored-card:hover .footer-arrow {
           color: var(--primary-color);
           transform: translateX(4px);
+        }
+
+        .modern-service-card {
+          background: white;
+          border-radius: 20px;
+          padding: 2rem;
+          display: flex;
+          flex-direction: column;
+          border: 1px solid rgba(0,0,0,0.04);
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          cursor: pointer;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .modern-service-card:hover {
+          transform: translateY(-10px);
+          box-shadow: 0 20px 40px rgba(45, 46, 137, 0.08);
+          border-color: rgba(45, 46, 137, 0.1);
+        }
+
+        .modern-icon-box {
+          width: 64px;
+          height: 64px;
+          background: rgba(243, 158, 30, 0.08);
+          border-radius: 18px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--primary-color);
+          transition: all 0.3s ease;
+        }
+
+        .modern-service-card:hover .modern-icon-box {
+          transform: scale(1.1) rotate(5deg);
+        }
+
+        .modern-card-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: var(--primary-color);
+          font-weight: 700;
+          font-size: 0.95rem;
+          text-decoration: none;
+          margin-top: auto;
+          transition: all 0.3s ease;
+        }
+
+        .modern-card-link:hover {
+          gap: 0.75rem;
+          opacity: 0.8;
+        }
+
+        .card-arrow {
+          transition: all 0.3s ease;
+        }
+
+        .modern-service-card:hover .card-arrow {
+          transform: translateX(4px);
+          color: var(--primary-color);
         }
 
         @media (max-width: 1100px) {
