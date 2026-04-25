@@ -56,14 +56,6 @@ export default function LandingPage() {
               <Link to="/apply" className="btn btn-primary" style={{ padding: '1.25rem 2.5rem', fontSize: '1.1rem', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'var(--accent-color)' }}>
                 Get Started <ArrowRight size={20} />
               </Link>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginLeft: '2rem' }}>
-                <div style={{ display: 'flex' }}>
-                  {[1,2,3,4,5].map(i => <Star key={i} size={20} fill="#f59e0b" color="#f59e0b" />)}
-                </div>
-                <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                  <span style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }}>4.9/5</span> (2.4k Reviews)
-                </div>
-              </div>
             </div>
           </div>
           
