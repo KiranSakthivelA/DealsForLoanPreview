@@ -378,7 +378,7 @@ export default function LandingPage() {
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           <div style={{ marginBottom: '4rem', textAlign: 'center' }}>
             <h2 className="gradient-text" style={{ fontSize: '2.5rem', marginBottom: '1.25rem', fontWeight: 800 }}>Insurance</h2>
-            <div style={{ width: '60px', height: '4px', background: '#22c55e', margin: '0 auto 1.5rem', borderRadius: '2px' }}></div>
+            <div style={{ width: '60px', height: '4px', background: 'var(--primary-color)', margin: '0 auto 1.5rem', borderRadius: '2px' }}></div>
             <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto' }}>
               Comprehensive protection plans designed to safeguard your life, health, and assets.
             </p>
@@ -386,16 +386,16 @@ export default function LandingPage() {
 
           <div className="insurance-grid">
             {insurance.map((srv, idx) => (
-              <div key={idx} className="modern-service-card" style={{ borderColor: idx === 1 ? 'rgba(34, 197, 94, 0.1)' : 'rgba(0,0,0,0.03)' }}>
+              <div key={idx} className="modern-service-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
-                  <div className="modern-icon-box" style={{ background: 'rgba(34, 197, 94, 0.08)', color: '#22c55e' }}>
+                  <div className="modern-icon-box">
                     <span style={{ fontSize: '1.75rem' }}>{srv.icon}</span>
                   </div>
                   <ChevronRight size={18} color="var(--text-muted)" className="card-arrow" />
                 </div>
                 <h3 style={{ fontSize: '1.25rem', color: 'var(--accent-color)', marginBottom: '1rem', fontWeight: 700 }}>{srv.title}</h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '2rem', lineHeight: '1.6', flex: 1 }}>{srv.desc}</p>
-                <Link to="/apply" className="modern-card-link" style={{ color: '#22c55e' }}>
+                <Link to="/apply" className="modern-card-link">
                   {srv.linkText}
                   <ArrowRight size={16} />
                 </Link>
