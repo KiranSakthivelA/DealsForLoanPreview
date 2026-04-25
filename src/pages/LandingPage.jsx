@@ -94,7 +94,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="glass" style={{ padding: '2.5rem', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', position: 'relative', zIndex: 2 }}>
+            <div className="glass" style={{ padding: '2.5rem', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', position: 'relative', zIndex: 2, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
               <h3 style={{ fontSize: '1.5rem', color: 'var(--accent-color)', marginBottom: '0.5rem', fontWeight: 800 }}>Quick Estimate</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '2rem' }}>Fill in your details to get a fast loan estimate.</p>
               
@@ -371,9 +371,9 @@ export default function LandingPage() {
           position: absolute;
           inset: 0;
           padding: 2.5rem;
-          background: rgba(255, 255, 255, 0.85);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
+          background: rgba(255, 255, 255, 0.45);
+          backdrop-filter: blur(30px);
+          -webkit-backdrop-filter: blur(30px);
           opacity: 0;
           visibility: hidden;
           transition: all 0.4s ease;
