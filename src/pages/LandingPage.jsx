@@ -221,9 +221,22 @@ export default function LandingPage() {
           <h2 style={{ fontSize: '3.5rem', color: 'var(--accent-color)', marginBottom: '1.5rem', fontWeight: 800, lineHeight: 1.2 }}>
             Financial Solutions <span style={{ position: 'relative', display: 'inline-block' }}>
               Tailored
-              <svg width="140" height="20" viewBox="0 0 140 20" style={{ position: 'absolute', bottom: '-15px', left: 0, zIndex: -1 }}>
-                <path d="M5 12C40 18 100 18 135 12" stroke="var(--primary-color)" strokeWidth="6" fill="none" strokeLinecap="round" opacity="0.6" />
-                <path d="M5 15C40 10 100 10 135 15" stroke="var(--primary-color)" strokeWidth="4" fill="none" strokeLinecap="round" />
+              <svg width="160" height="24" viewBox="0 0 160 24" style={{ position: 'absolute', bottom: '-18px', left: '-5px', zIndex: -1 }}>
+                <path 
+                  d="M5 15C30 18 130 18 155 15" 
+                  stroke="var(--primary-color)" 
+                  strokeWidth="8" 
+                  fill="none" 
+                  strokeLinecap="round" 
+                  opacity="0.3" 
+                />
+                <path 
+                  d="M8 17C35 20 125 20 152 17" 
+                  stroke="var(--primary-color)" 
+                  strokeWidth="5" 
+                  fill="none" 
+                  strokeLinecap="round" 
+                />
               </svg>
             </span> <br/> For You
           </h2>
