@@ -164,7 +164,7 @@ export default function Navbar() {
 
       <style>{`
         @media (max-width: 1024px) {
-          nav { padding: 1rem 1.25rem !important; }
+          nav { padding: 1rem !important; }
           .desktop-only { display: none !important; }
           .mobile-toggle { display: block !important; }
           
