@@ -43,6 +43,15 @@ export default function LandingPage() {
       <div className="mobile-hide" style={{ position: 'absolute', top: '40%', right: '10%', width: '200px', height: '200px', background: 'rgba(45, 46, 137, 0.05)', borderRadius: '50%', filter: 'blur(50px)', animation: 'float 12s infinite ease-in-out reverse', zIndex: 0 }}></div>
       <div className="mobile-hide" style={{ position: 'absolute', bottom: '20%', left: '15%', width: '180px', height: '180px', background: 'rgba(243, 158, 30, 0.03)', borderRadius: '40% 60% 60% 40% / 40% 40% 60% 60%', filter: 'blur(45px)', animation: 'float 10s infinite ease-in-out 2s', zIndex: 0 }}></div>
 
+      {/* Abstract Geometric Lines (Like everydaybankingsolutions) */}
+      <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0.04, pointerEvents: 'none', zIndex: 0 }}>
+        <pattern id="geometric-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+          <path d="M0 100 L100 0 M0 0 L100 100" stroke="var(--accent-color)" strokeWidth="1" fill="none" />
+          <circle cx="50" cy="50" r="2" fill="var(--accent-color)" />
+        </pattern>
+        <rect width="100%" height="100%" fill="url(#geometric-pattern)" />
+      </svg>
+
       {/* Hero Section & Quick Estimate Form */}
       <section style={{ padding: '4rem 0', position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', minHeight: '85vh' }}>
         <div className="container hero-grid">
@@ -64,7 +73,7 @@ export default function LandingPage() {
             </p>
             
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <Link to="/apply" className="btn shine-effect" style={{ background: 'linear-gradient(135deg, var(--accent-color) 0%, #1a1b5d 100%)', color: 'white', padding: '1.25rem 2.5rem', fontSize: '1.1rem', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 10px 25px rgba(45, 46, 137, 0.25)', transition: 'all 0.3s' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0) scale(1)'}>
+              <Link to="/apply" className="btn" style={{ background: 'linear-gradient(135deg, var(--accent-color) 0%, #1a1b5d 100%)', color: 'white', padding: '1.25rem 2.5rem', fontSize: '1.1rem', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 10px 25px rgba(45, 46, 137, 0.25)', transition: 'all 0.3s' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0) scale(1)'}>
                 Get Started <ArrowRight size={20} />
               </Link>
             </div>
@@ -117,7 +126,7 @@ export default function LandingPage() {
                     {LOAN_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
                   </select>
                 </div>
-                <button type="submit" className="btn btn-primary shine-effect" style={{ width: '100%', padding: '1.1rem', fontSize: '1.1rem', borderRadius: '12px', fontWeight: 700 }}>
+                <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '1.1rem', fontSize: '1.1rem', borderRadius: '12px', fontWeight: 700 }}>
                   Get Estimate Now
                 </button>
               </form>
@@ -127,38 +136,34 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Stats Banner */}
+      {/* Slim Stats Banner (Matched to User Image) */}
       <section style={{ 
-        background: 'linear-gradient(135deg, #1e1b4b 0%, #2d2e89 50%, #1e1b4b 100%)', 
-        padding: '4rem 0', 
+        background: 'linear-gradient(90deg, #1e1b4b 0%, #2d2e89 50%, #1e1b4b 100%)', 
+        padding: '2rem 0', 
         position: 'relative', 
         zIndex: 2, 
-        boxShadow: '0 20px 50px rgba(45, 46, 137, 0.3)',
+        boxShadow: '0 15px 35px rgba(0,0,0,0.1)',
         overflow: 'hidden'
       }}>
-        {/* Mesh Effect Overlays */}
-        <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '60%', height: '200%', background: 'radial-gradient(circle, rgba(243, 158, 30, 0.05) 0%, transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }}></div>
-        <div style={{ position: 'absolute', bottom: '-50%', right: '-10%', width: '50%', height: '200%', background: 'radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 60%)', filter: 'blur(50px)', pointerEvents: 'none' }}></div>
-        
-        <div className="container stats-flex">
-          <div style={{ textAlign: 'center', color: 'white' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.25rem' }}>1,250+</div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '1px' }}>Professionals</div>
+        <div className="container stats-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ textAlign: 'center', color: 'white', flex: 1 }}>
+            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>1,250+</div>
+            <div style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Professionals</div>
           </div>
-          <div style={{ width: '1px', height: '60px', backgroundColor: 'rgba(255,255,255,0.2)' }}></div>
-          <div style={{ textAlign: 'center', color: 'white' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.25rem' }}>75+</div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '1px' }}>Cities Covered</div>
+          <div style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '0 2rem' }}></div>
+          <div style={{ textAlign: 'center', color: 'white', flex: 1 }}>
+            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>75+</div>
+            <div style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Cities Covered</div>
           </div>
-          <div style={{ width: '1px', height: '60px', backgroundColor: 'rgba(255,255,255,0.2)' }}></div>
-          <div style={{ textAlign: 'center', color: 'white' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.25rem' }}>275+</div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '1px' }}>Partner Banks</div>
+          <div style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '0 2rem' }}></div>
+          <div style={{ textAlign: 'center', color: 'white', flex: 1 }}>
+            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>275+</div>
+            <div style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Partner Banks</div>
           </div>
-          <div style={{ width: '1px', height: '60px', backgroundColor: 'rgba(255,255,255,0.2)' }}></div>
-          <div style={{ textAlign: 'center', color: 'white' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.25rem' }}>$2B+</div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '1px' }}>Loans Disbursed</div>
+          <div style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '0 2rem' }}></div>
+          <div style={{ textAlign: 'center', color: 'white', flex: 1 }}>
+            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>$2B+</div>
+            <div style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Loans Disbursed</div>
           </div>
         </div>
       </section>

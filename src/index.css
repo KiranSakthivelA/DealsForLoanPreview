@@ -56,29 +56,6 @@
   100% { transform: translateY(0px) rotate(0deg); }
 }
 
-@keyframes shine {
-  0% { left: -100%; }
-  20% { left: 100%; }
-  100% { left: 100%; }
-}
-
-.shine-effect {
-  position: relative;
-  overflow: hidden;
-}
-
-.shine-effect::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -100%;
-  width: 50%;
-  height: 200%;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transform: rotate(30deg);
-  animation: shine 6s infinite;
-}
-
 .gradient-text {
   background: linear-gradient(135deg, var(--primary-color) 0%, #ff8c00 100%);
   -webkit-background-clip: text;
@@ -289,18 +266,6 @@ p {
   box-shadow: 0 4px 15px rgba(243, 158, 30, 0.2);
   position: relative;
   overflow: hidden;
-}
-
-.btn-primary::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -100%;
-  width: 50%;
-  height: 200%;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transform: rotate(30deg);
-  animation: shine 4s infinite;
 }
 
 .btn-primary:hover {
