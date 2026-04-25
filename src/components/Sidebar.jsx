@@ -20,10 +20,7 @@ export default function Sidebar({ onClose, isOpen }) {
         </button>
       )}
       <div className="sidebar-header">
-        <div style={{ width: '28px', height: '28px', borderRadius: '50%', border: '3px solid var(--primary-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <div style={{ width: '10px', height: '10px', backgroundColor: 'var(--primary-color)', borderRadius: '50%' }}></div>
-        </div>
-        Deals For Loan
+        <img src="/Asset/f.png" alt="Deals For Loan" style={{ height: '32px', objectFit: 'contain' }} />
       </div>
       
       <nav className="sidebar-nav">
