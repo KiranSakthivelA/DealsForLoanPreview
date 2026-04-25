@@ -1,6 +1,41 @@
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Star, ShieldCheck, Shield, CheckCircle2, ChevronRight, Home } from 'lucide-react';
 import { LOAN_TYPES } from '../store/db';
+
+function CountUp({ end, duration = 2000, prefix = "", suffix = "" }) {
+  const [count, setCount] = useState(0);
+  const countRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setIsVisible(true);
+      },
+      { threshold: 0.1 }
+    );
+    if (countRef.current) observer.observe(countRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+    
+    let startTimestamp = null;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      setCount(Math.floor(progress * end));
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    window.requestAnimationFrame(step);
+  }, [isVisible, end, duration]);
+
+  return <span ref={countRef}>{prefix}{count.toLocaleString()}{suffix}</span>;
+}
 
 const products = [
   { title: "Home Loan", desc: "Your Dream Home Awaits - Explore Our Range Of Home Loan Products.", icon: "🏡" },
@@ -147,22 +182,30 @@ export default function LandingPage() {
       }}>
         <div className="container stats-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ textAlign: 'center', color: 'white', flex: 1 }}>
-            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>1,250+</div>
+            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>
+              <CountUp end={1250} suffix="+" />
+            </div>
             <div style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Professionals</div>
           </div>
           <div style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '0 2rem' }}></div>
           <div style={{ textAlign: 'center', color: 'white', flex: 1 }}>
-            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>75+</div>
+            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>
+              <CountUp end={75} suffix="+" />
+            </div>
             <div style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Cities Covered</div>
           </div>
           <div style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '0 2rem' }}></div>
           <div style={{ textAlign: 'center', color: 'white', flex: 1 }}>
-            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>275+</div>
+            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>
+              <CountUp end={275} suffix="+" />
+            </div>
             <div style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Partner Banks</div>
           </div>
           <div style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '0 2rem' }}></div>
           <div style={{ textAlign: 'center', color: 'white', flex: 1 }}>
-            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>$2B+</div>
+            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>
+              <CountUp end={2} prefix="$" suffix="B+" />
+            </div>
             <div style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Loans Disbursed</div>
           </div>
         </div>
