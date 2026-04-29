@@ -87,70 +87,63 @@ export default function LandingPage() {
         <rect width="100%" height="100%" fill="url(#geometric-pattern)" />
       </svg>
 
-      {/* Hero Section & Quick Estimate Form - High End Fintech Dark Theme */}
-      <section className="hero-section" style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '90vh', padding: '6rem 1rem', backgroundColor: '#0f172a', overflow: 'hidden' }}>
+      {/* Hero Section & Quick Estimate Form - Light Theme */}
+      <section className="hero-section" style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '90vh', padding: '6rem 1rem' }}>
         
-        {/* Subtle Background Glow Orbs */}
-        <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(243, 158, 30, 0.12) 0%, rgba(15, 23, 42, 0) 70%)', borderRadius: '50%', zIndex: 0 }}></div>
-        <div style={{ position: 'absolute', bottom: '-20%', left: '-10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(45, 46, 137, 0.3) 0%, rgba(15, 23, 42, 0) 70%)', borderRadius: '50%', zIndex: 0 }}></div>
-        
-        {/* Abstract Grid Lines */}
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)', backgroundSize: '40px 40px', zIndex: 0 }}></div>
-
         <div className="container" style={{ position: 'relative', maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '5rem', flexWrap: 'wrap', zIndex: 1 }}>
           
           {/* Left Text Block */}
           <div style={{ flex: '1 1 500px', textAlign: 'left' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', color: '#f8fafc', padding: '0.5rem 1.25rem', borderRadius: '99px', fontSize: '0.85rem', fontWeight: 700, marginBottom: '2rem', border: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)' }}>
-              <ShieldCheck size={16} color="#f39e1e" /> TRUSTED FINANCIAL PARTNER
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--primary-lighter)', color: 'var(--primary-color)', padding: '0.5rem 1.25rem', borderRadius: '99px', fontSize: '0.85rem', fontWeight: 700, marginBottom: '2rem', border: '1px solid rgba(255,255,255,0.5)', boxShadow: 'var(--shadow-sm)' }}>
+              <ShieldCheck size={16} color="var(--primary-color)" /> TRUSTED FINANCIAL PARTNER
             </div>
             
-            <h1 className="hero-title" style={{ color: '#f8fafc', marginBottom: '1.5rem', lineHeight: '1.1', letterSpacing: '-0.04em', fontSize: '4.5rem', fontWeight: 800 }}>
+            <h1 className="hero-title" style={{ color: 'var(--accent-color)', marginBottom: '1.5rem', lineHeight: '1.1', letterSpacing: '-0.04em', fontSize: '4.5rem', fontWeight: 800 }}>
               Unlock Your <br className="mobile-hide-br" />
-              <span style={{ background: 'linear-gradient(135deg, #f39e1e 0%, #ff8c00 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Financial Power.</span>
+              <span className="gradient-text">Financial Power.</span>
             </h1>
             
-            <p style={{ fontSize: '1.25rem', color: '#94a3b8', marginBottom: '3rem', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', marginBottom: '3rem', lineHeight: '1.6' }}>
               Experience seamless lending, secure credit cards, and comprehensive insurance plans tailored specifically for your lifestyle and everyday needs.
             </p>
             
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '3rem' }}>
-              <Link to="/apply" className="btn" style={{ background: 'linear-gradient(135deg, #f39e1e 0%, #ff8c00 100%)', color: 'white', padding: '1.25rem 3rem', fontSize: '1.1rem', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 10px 25px rgba(243, 158, 30, 0.3)', transition: 'all 0.3s', fontWeight: 700, border: 'none' }} onMouseOver={e => {e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 15px 35px rgba(243, 158, 30, 0.4)';}} onMouseOut={e => {e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 25px rgba(243, 158, 30, 0.3)';}}>
+              <Link to="/apply" className="btn" style={{ background: 'var(--accent-color)', color: 'white', padding: '1.25rem 3rem', fontSize: '1.1rem', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 10px 25px rgba(45, 46, 137, 0.25)', transition: 'all 0.3s', fontWeight: 700, border: 'none' }} onMouseOver={e => {e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 15px 35px rgba(45, 46, 137, 0.4)';}} onMouseOut={e => {e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 25px rgba(45, 46, 137, 0.25)';}}>
                 Start Application <ArrowRight size={20} />
               </Link>
-              <Link to="#services" className="btn btn-secondary" style={{ padding: '1.25rem 3rem', fontSize: '1.1rem', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', fontWeight: 600, background: 'rgba(255,255,255,0.05)', color: '#f8fafc', border: '1px solid rgba(255,255,255,0.1)', transition: 'all 0.3s' }} onMouseOver={e => {e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}} onMouseOut={e => {e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}}>
+              <Link to="#services" className="btn btn-secondary" style={{ padding: '1.25rem 3rem', fontSize: '1.1rem', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', fontWeight: 600, background: 'white', color: 'var(--accent-color)' }}>
                 Explore Services
               </Link>
             </div>
 
-            {/* Trust Indicators replacing pills */}
-            <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: 600 }}>
+            {/* Trust Indicators */}
+            <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '2rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.95rem', fontWeight: 600 }}>
                 <CheckCircle2 size={18} color="#22c55e" /> Home Loans
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: 600 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.95rem', fontWeight: 600 }}>
                 <CheckCircle2 size={18} color="#22c55e" /> Insurance
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: 600 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.95rem', fontWeight: 600 }}>
                 <CheckCircle2 size={18} color="#22c55e" /> Premium Cards
               </div>
             </div>
           </div>
 
-          {/* Right Form Block - Dark Glassmorphism */}
+          {/* Right Form Block - Light Glassmorphism */}
           <div style={{ flex: '1 1 400px', position: 'relative' }}>
             <div style={{ 
-              background: 'rgba(255, 255, 255, 0.03)', 
+              background: 'rgba(255, 255, 255, 0.7)', 
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.9)',
               borderRadius: '24px', 
               padding: '2.5rem 2rem',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08)',
               position: 'relative',
               zIndex: 10
             }}>
-              <h3 style={{ fontSize: '1.3rem', color: '#f8fafc', marginBottom: '1.5rem', fontWeight: 800 }}>Quick Eligibility Estimate</h3>
+              <h3 style={{ fontSize: '1.3rem', color: 'var(--accent-color)', marginBottom: '1.5rem', fontWeight: 800 }}>Quick Eligibility Estimate</h3>
               <form onSubmit={(e) => {
                 e.preventDefault();
                 const name = e.target.name.value;
@@ -171,16 +164,16 @@ export default function LandingPage() {
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                   <div style={{ textAlign: 'left' }}>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Your Name *</label>
-                    <input type="text" name="name" required placeholder="e.g. Rahul Kumar" style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(0,0,0,0.2)', color: 'white', fontSize: '1rem', fontWeight: 500, outline: 'none', transition: 'border 0.3s' }} onFocus={e => e.target.style.borderColor = '#f39e1e'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Your Name *</label>
+                    <input type="text" name="name" required placeholder="e.g. Rahul Kumar" style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'white', fontSize: '1rem', fontWeight: 500, outline: 'none', transition: 'border 0.3s' }} onFocus={e => e.target.style.borderColor = 'var(--primary-color)'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'} />
                   </div>
                   <div style={{ textAlign: 'left' }}>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Phone Number *</label>
-                    <input type="tel" name="phone" required placeholder="e.g. 9876543210" style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(0,0,0,0.2)', color: 'white', fontSize: '1rem', fontWeight: 500, outline: 'none', transition: 'border 0.3s' }} onFocus={e => e.target.style.borderColor = '#f39e1e'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Phone Number *</label>
+                    <input type="tel" name="phone" required placeholder="e.g. 9876543210" style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'white', fontSize: '1rem', fontWeight: 500, outline: 'none', transition: 'border 0.3s' }} onFocus={e => e.target.style.borderColor = 'var(--primary-color)'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'} />
                   </div>
                   <div style={{ textAlign: 'left' }}>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem', textTransform: 'uppercase' }}>I am looking for *</label>
-                    <select name="service" required style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: '#1e293b', color: 'white', fontSize: '1rem', fontWeight: 500, outline: 'none', transition: 'border 0.3s' }} onFocus={e => e.target.style.borderColor = '#f39e1e'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>I am looking for *</label>
+                    <select name="service" required style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'white', fontSize: '1rem', fontWeight: 500, outline: 'none', transition: 'border 0.3s' }} onFocus={e => e.target.style.borderColor = 'var(--primary-color)'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'}>
                       <option value="" disabled selected>Select Product...</option>
                       {LOAN_TYPES.map(type => (
                         <option key={type} value={type}>{type}</option>
@@ -190,12 +183,12 @@ export default function LandingPage() {
                     </select>
                   </div>
                   <div style={{ textAlign: 'left' }}>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Required Amount (₹) *</label>
-                    <input type="number" name="amount" required placeholder="e.g. 500000" style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(0,0,0,0.2)', color: 'white', fontSize: '1rem', fontWeight: 500, outline: 'none', transition: 'border 0.3s' }} onFocus={e => e.target.style.borderColor = '#f39e1e'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Required Amount (₹) *</label>
+                    <input type="number" name="amount" required placeholder="e.g. 500000" style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'white', fontSize: '1rem', fontWeight: 500, outline: 'none', transition: 'border 0.3s' }} onFocus={e => e.target.style.borderColor = 'var(--primary-color)'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'} />
                   </div>
                 </div>
 
-                <button type="submit" style={{ marginTop: '0.5rem', width: '100%', padding: '1.25rem 2rem', borderRadius: '12px', border: 'none', background: 'white', color: '#0f172a', fontSize: '1.1rem', fontWeight: 800, cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 8px 15px rgba(255, 255, 255, 0.15)' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                <button type="submit" style={{ marginTop: '0.5rem', width: '100%', padding: '1.25rem 2rem', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, var(--primary-color) 0%, #ff8c00 100%)', color: 'white', fontSize: '1.1rem', fontWeight: 800, cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 8px 15px rgba(243, 158, 30, 0.3)' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
                   Get Free Estimate
                 </button>
               </form>
