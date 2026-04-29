@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Star, ShieldCheck, Shield, CheckCircle2, ChevronRight, Home } from 'lucide-react';
-import { LOAN_TYPES } from '../store/db';
+import { LOAN_TYPES, saveEstimate } from '../store/db';
 
 function CountUp({ end, duration = 2000, prefix = "", suffix = "" }) {
   const [count, setCount] = useState(0);
@@ -87,82 +87,116 @@ export default function LandingPage() {
         <rect width="100%" height="100%" fill="url(#geometric-pattern)" />
       </svg>
 
-      {/* Hero Section & Quick Estimate Form */}
-      <section className="hero-section" style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center' }}>
-        <div className="container hero-grid">
+      {/* Hero Section & Quick Estimate Form - High End Fintech Dark Theme */}
+      <section className="hero-section" style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '90vh', padding: '6rem 1rem', backgroundColor: '#0f172a', overflow: 'hidden' }}>
+        
+        {/* Subtle Background Glow Orbs */}
+        <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(243, 158, 30, 0.12) 0%, rgba(15, 23, 42, 0) 70%)', borderRadius: '50%', zIndex: 0 }}></div>
+        <div style={{ position: 'absolute', bottom: '-20%', left: '-10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(45, 46, 137, 0.3) 0%, rgba(15, 23, 42, 0) 70%)', borderRadius: '50%', zIndex: 0 }}></div>
+        
+        {/* Abstract Grid Lines */}
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)', backgroundSize: '40px 40px', zIndex: 0 }}></div>
+
+        <div className="container" style={{ position: 'relative', maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '5rem', flexWrap: 'wrap', zIndex: 1 }}>
           
-          {/* Left Hero Content */}
-          <div style={{ paddingRight: '2rem' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--primary-lighter)', color: 'var(--primary-color)', padding: '0.5rem 1rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, marginBottom: '2rem' }}>
-              <ShieldCheck size={16} /> TRUSTED FINANCIAL PARTNER
+          {/* Left Text Block */}
+          <div style={{ flex: '1 1 500px', textAlign: 'left' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'rgba(255, 255, 255, 0.05)', color: '#f8fafc', padding: '0.5rem 1.25rem', borderRadius: '99px', fontSize: '0.85rem', fontWeight: 700, marginBottom: '2rem', border: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)' }}>
+              <ShieldCheck size={16} color="#f39e1e" /> TRUSTED FINANCIAL PARTNER
             </div>
             
-            <h1 className="hero-title" style={{ color: 'var(--accent-color)', marginBottom: '1.5rem', lineHeight: '1.05', letterSpacing: '-0.03em' }}>
-              Banking <br className="mobile-hide-br" />
-              Solutions For <br className="mobile-hide-br" />
-              <span className="gradient-text">Everyday Needs.</span>
+            <h1 className="hero-title" style={{ color: '#f8fafc', marginBottom: '1.5rem', lineHeight: '1.1', letterSpacing: '-0.04em', fontSize: '4.5rem', fontWeight: 800 }}>
+              Unlock Your <br className="mobile-hide-br" />
+              <span style={{ background: 'linear-gradient(135deg, #f39e1e 0%, #ff8c00 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Financial Power.</span>
             </h1>
             
-            <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', marginBottom: '3rem', lineHeight: '1.6', maxWidth: '540px' }}>
-              Experience seamless lending, secure credit cards, and comprehensive insurance plans tailored specifically for your lifestyle.
+            <p style={{ fontSize: '1.25rem', color: '#94a3b8', marginBottom: '3rem', lineHeight: '1.6' }}>
+              Experience seamless lending, secure credit cards, and comprehensive insurance plans tailored specifically for your lifestyle and everyday needs.
             </p>
             
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <Link to="/apply" className="btn" style={{ background: 'linear-gradient(135deg, var(--accent-color) 0%, #1a1b5d 100%)', color: 'white', padding: '1.25rem 2.5rem', fontSize: '1.1rem', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 10px 25px rgba(45, 46, 137, 0.25)', transition: 'all 0.3s' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0) scale(1)'}>
-                Get Started <ArrowRight size={20} />
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '3rem' }}>
+              <Link to="/apply" className="btn" style={{ background: 'linear-gradient(135deg, #f39e1e 0%, #ff8c00 100%)', color: 'white', padding: '1.25rem 3rem', fontSize: '1.1rem', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 10px 25px rgba(243, 158, 30, 0.3)', transition: 'all 0.3s', fontWeight: 700, border: 'none' }} onMouseOver={e => {e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 15px 35px rgba(243, 158, 30, 0.4)';}} onMouseOut={e => {e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 25px rgba(243, 158, 30, 0.3)';}}>
+                Start Application <ArrowRight size={20} />
+              </Link>
+              <Link to="#services" className="btn btn-secondary" style={{ padding: '1.25rem 3rem', fontSize: '1.1rem', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', fontWeight: 600, background: 'rgba(255,255,255,0.05)', color: '#f8fafc', border: '1px solid rgba(255,255,255,0.1)', transition: 'all 0.3s' }} onMouseOver={e => {e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}} onMouseOut={e => {e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}}>
+                Explore Services
               </Link>
             </div>
+
+            {/* Trust Indicators replacing pills */}
+            <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: 600 }}>
+                <CheckCircle2 size={18} color="#22c55e" /> Home Loans
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: 600 }}>
+                <CheckCircle2 size={18} color="#22c55e" /> Insurance
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: 600 }}>
+                <CheckCircle2 size={18} color="#22c55e" /> Premium Cards
+              </div>
+            </div>
           </div>
-          
-          {/* Right Hero - Visuals & Quick Estimate Form */}
-          <div style={{ position: 'relative' }}>
-            {/* CSS Floating Credit Cards */}
-            <div className="mobile-hide" style={{ position: 'absolute', top: '-120px', right: '-40px', width: '320px', height: '200px', background: 'linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%)', borderRadius: '20px', padding: '1.5rem', color: 'white', boxShadow: '0 24px 48px rgba(26, 62, 114, 0.25)', transform: 'rotate(12deg)', zIndex: 1, opacity: 0.9 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
-                <Shield size={32} opacity={0.8} />
-                <div style={{ width: '40px', height: '30px', background: 'rgba(255,255,255,0.2)', borderRadius: '6px' }}></div>
-              </div>
-              <div style={{ fontSize: '1.25rem', letterSpacing: '2px', marginBottom: '1rem', fontFamily: 'monospace' }}>**** **** **** 8892</div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', opacity: 0.8 }}>
-                <span>Platinum Rewards</span>
-                <span>12/28</span>
-              </div>
-            </div>
 
-            <div className="mobile-hide" style={{ position: 'absolute', bottom: '-80px', left: '-120px', width: '300px', height: '190px', background: 'linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%)', borderRadius: '20px', padding: '1.5rem', color: 'white', boxShadow: '0 24px 48px rgba(243, 158, 30, 0.25)', transform: 'rotate(-8deg)', zIndex: 1, opacity: 0.9 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
-                <img src="/Asset/f.png" alt="Logo" style={{ height: '30px', filter: 'brightness(0) invert(1)' }} />
-                <div style={{ width: '40px', height: '30px', background: 'rgba(255,255,255,0.2)', borderRadius: '6px' }}></div>
-              </div>
-              <div style={{ fontSize: '1.25rem', letterSpacing: '2px', marginBottom: '1rem', fontFamily: 'monospace' }}>**** **** **** 4210</div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', opacity: 0.8 }}>
-                <span>Business Elite</span>
-                <span>09/27</span>
-              </div>
-            </div>
+          {/* Right Form Block - Dark Glassmorphism */}
+          <div style={{ flex: '1 1 400px', position: 'relative' }}>
+            <div style={{ 
+              background: 'rgba(255, 255, 255, 0.03)', 
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '24px', 
+              padding: '2.5rem 2rem',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative',
+              zIndex: 10
+            }}>
+              <h3 style={{ fontSize: '1.3rem', color: '#f8fafc', marginBottom: '1.5rem', fontWeight: 800 }}>Quick Eligibility Estimate</h3>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const name = e.target.name.value;
+                const phone = e.target.phone.value;
+                const service = e.target.service.value;
+                const amount = e.target.amount.value;
+                
+                // 1. Save to Dashboard
+                saveEstimate({ name, phone, service, amount });
 
-            <div className="glass hero-form-container" style={{ borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', position: 'relative', zIndex: 2, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-              <h3 style={{ fontSize: '1.5rem', color: 'var(--accent-color)', marginBottom: '0.5rem', fontWeight: 800 }}>Quick Estimate</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '2rem' }}>Fill in your details to get a fast loan estimate.</p>
-              
-              <form onSubmit={e => { e.preventDefault(); window.location.href = '/apply'; }}>
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Full Name</label>
-                  <input type="text" className="form-control" required placeholder="John Doe" style={{ borderRadius: '12px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.03)' }} />
+                // 2. Open WhatsApp
+                const text = `Hello Deals For Loan,\nI would like a quick estimate.\n\nName: ${name}\nPhone: ${phone}\nService: ${service}\nAmount: ₹${amount}`;
+                const waUrl = `https://wa.me/919442173548?text=${encodeURIComponent(text)}`;
+                window.open(waUrl, '_blank');
+                
+                e.target.reset();
+              }} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  <div style={{ textAlign: 'left' }}>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Your Name *</label>
+                    <input type="text" name="name" required placeholder="e.g. Rahul Kumar" style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(0,0,0,0.2)', color: 'white', fontSize: '1rem', fontWeight: 500, outline: 'none', transition: 'border 0.3s' }} onFocus={e => e.target.style.borderColor = '#f39e1e'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
+                  </div>
+                  <div style={{ textAlign: 'left' }}>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Phone Number *</label>
+                    <input type="tel" name="phone" required placeholder="e.g. 9876543210" style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(0,0,0,0.2)', color: 'white', fontSize: '1rem', fontWeight: 500, outline: 'none', transition: 'border 0.3s' }} onFocus={e => e.target.style.borderColor = '#f39e1e'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
+                  </div>
+                  <div style={{ textAlign: 'left' }}>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem', textTransform: 'uppercase' }}>I am looking for *</label>
+                    <select name="service" required style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: '#1e293b', color: 'white', fontSize: '1rem', fontWeight: 500, outline: 'none', transition: 'border 0.3s' }} onFocus={e => e.target.style.borderColor = '#f39e1e'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}>
+                      <option value="" disabled selected>Select Product...</option>
+                      {LOAN_TYPES.map(type => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                      <option value="Credit Card">Credit Card</option>
+                      <option value="Life Insurance">Life Insurance</option>
+                    </select>
+                  </div>
+                  <div style={{ textAlign: 'left' }}>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Required Amount (₹) *</label>
+                    <input type="number" name="amount" required placeholder="e.g. 500000" style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(0,0,0,0.2)', color: 'white', fontSize: '1rem', fontWeight: 500, outline: 'none', transition: 'border 0.3s' }} onFocus={e => e.target.style.borderColor = '#f39e1e'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
+                  </div>
                 </div>
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Phone Number</label>
-                  <input type="tel" className="form-control" required placeholder="+91 00000 00000" style={{ borderRadius: '12px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.03)' }} />
-                </div>
-                <div style={{ marginBottom: '2rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Loan Type</label>
-                  <select className="form-control" required style={{ borderRadius: '12px', height: '50px', cursor: 'pointer', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.03)' }}>
-                    <option value="" disabled selected>Select Loan Type</option>
-                    {LOAN_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
-                  </select>
-                </div>
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '1.1rem', fontSize: '1.1rem', borderRadius: '12px', fontWeight: 700 }}>
-                  Get Estimate Now
+
+                <button type="submit" style={{ marginTop: '0.5rem', width: '100%', padding: '1.25rem 2rem', borderRadius: '12px', border: 'none', background: 'white', color: '#0f172a', fontSize: '1.1rem', fontWeight: 800, cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 8px 15px rgba(255, 255, 255, 0.15)' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                  Get Free Estimate
                 </button>
               </form>
             </div>
@@ -171,42 +205,43 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Slim Stats Banner (Matched to User Image) */}
+      {/* Stats Section */}
       <section style={{ 
-        background: 'linear-gradient(90deg, #1e1b4b 0%, #2d2e89 50%, #1e1b4b 100%)', 
-        padding: '2rem 0', 
+        padding: '3rem 0', 
         position: 'relative', 
         zIndex: 2, 
-        boxShadow: '0 15px 35px rgba(0,0,0,0.1)',
-        overflow: 'hidden'
+        borderTop: '1px solid rgba(0,0,0,0.05)',
+        borderBottom: '1px solid rgba(0,0,0,0.05)',
+        backgroundColor: 'rgba(255,255,255,0.5)',
+        backdropFilter: 'blur(10px)'
       }}>
-        <div className="container stats-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ textAlign: 'center', color: 'white', flex: 1 }}>
-            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>
-              <CountUp end={1250} suffix="+" />
+        <div className="container stats-flex" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+          <div style={{ textAlign: 'center', flex: 1 }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.25rem', color: 'var(--accent-color)' }}>
+              <CountUp end={50} suffix="+" />
             </div>
-            <div style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Professionals</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Cities Covered</div>
           </div>
-          <div className="mobile-hide" style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '0 2rem' }}></div>
-          <div style={{ textAlign: 'center', color: 'white', flex: 1 }}>
-            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>
-              <CountUp end={75} suffix="+" />
+          <div className="mobile-hide" style={{ width: '1px', height: '40px', backgroundColor: 'var(--border-color)', margin: '0 2rem' }}></div>
+          <div style={{ textAlign: 'center', flex: 1 }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.25rem', color: 'var(--accent-color)' }}>
+              <CountUp end={100} suffix="+" />
             </div>
-            <div style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Cities Covered</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Partner Banks</div>
           </div>
-          <div className="mobile-hide" style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '0 2rem' }}></div>
-          <div style={{ textAlign: 'center', color: 'white', flex: 1 }}>
-            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>
-              <CountUp end={275} suffix="+" />
+          <div className="mobile-hide" style={{ width: '1px', height: '40px', backgroundColor: 'var(--border-color)', margin: '0 2rem' }}></div>
+          <div style={{ textAlign: 'center', flex: 1 }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.25rem', color: 'var(--accent-color)' }}>
+              <CountUp end={10} suffix="k+" />
             </div>
-            <div style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Partner Banks</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Happy Clients</div>
           </div>
-          <div className="mobile-hide" style={{ width: '1px', height: '40px', backgroundColor: 'rgba(255,255,255,0.15)', margin: '0 2rem' }}></div>
-          <div style={{ textAlign: 'center', color: 'white', flex: 1 }}>
-            <div style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.15rem', letterSpacing: '-0.02em' }}>
-              <CountUp end={2} prefix="$" suffix="B+" />
+          <div className="mobile-hide" style={{ width: '1px', height: '40px', backgroundColor: 'var(--border-color)', margin: '0 2rem' }}></div>
+          <div style={{ textAlign: 'center', flex: 1 }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.25rem', color: 'var(--accent-color)' }}>
+              <CountUp end={99} suffix="%" />
             </div>
-            <div style={{ fontSize: '0.75rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Loans Disbursed</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Approval Rate</div>
           </div>
         </div>
       </section>

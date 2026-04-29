@@ -1,8 +1,51 @@
 // ============================================================
-//  Deals For Loan – localStorage "DB" + spreadsheet helpers
+//  Deals For Loan – localStorage "DB" + Auth + CRM
 // ============================================================
 
 const DB_KEY = 'dfl_submissions';
+const AUTH_KEY = 'dfl_auth_user';
+
+// ---------- CRM Users (1 Owner + 10 Employees) ----------------
+export const MOCK_USERS = [
+  { id: 'u0', name: 'Admin Owner', email: 'owner@deals.com', role: 'owner', password: 'password123' },
+  { id: 'u1', name: 'Rahul S.', email: 'rahul@deals.com', role: 'employee', password: 'password123' },
+  { id: 'u2', name: 'Pooja M.', email: 'pooja@deals.com', role: 'employee', password: 'password123' },
+  { id: 'u3', name: 'Kiran A.', email: 'kiran@deals.com', role: 'employee', password: 'password123' },
+  { id: 'u4', name: 'Vikram S.', email: 'vikram@deals.com', role: 'employee', password: 'password123' },
+  { id: 'u5', name: 'Anjali D.', email: 'anjali@deals.com', role: 'employee', password: 'password123' },
+  { id: 'u6', name: 'Rohan K.', email: 'rohan@deals.com', role: 'employee', password: 'password123' },
+  { id: 'u7', name: 'Sneha P.', email: 'sneha@deals.com', role: 'employee', password: 'password123' },
+  { id: 'u8', name: 'Amit V.', email: 'amit@deals.com', role: 'employee', password: 'password123' },
+  { id: 'u9', name: 'Priya R.', email: 'priya@deals.com', role: 'employee', password: 'password123' },
+  { id: 'u10', name: 'Suresh N.', email: 'suresh@deals.com', role: 'employee', password: 'password123' }
+];
+
+export const LEAD_STATUSES = [
+  "New", "Interested", "Documents Pending", "Verification", "Approved", "Disbursed", "Not Converted"
+];
+
+// ---------- Auth Helpers ------------------------------------
+export const loginUser = (email, password) => {
+  const user = MOCK_USERS.find(u => u.email === email && u.password === password);
+  if (user) {
+    localStorage.setItem(AUTH_KEY, JSON.stringify(user));
+    return user;
+  }
+  return null;
+};
+
+export const logoutUser = () => {
+  localStorage.removeItem(AUTH_KEY);
+};
+
+export const getLoggedInUser = () => {
+  const data = localStorage.getItem(AUTH_KEY);
+  return data ? JSON.parse(data) : null;
+};
+
+export const getAllEmployees = () => {
+  return MOCK_USERS.filter(u => u.role === 'employee');
+};
 
 // ---------- helpers -----------------------------------------
 export function generateUID() {
@@ -20,6 +63,25 @@ export function getAllSubmissions() {
   }
 }
 
+export function getAllEstimates() {
+  try {
+    return JSON.parse(localStorage.getItem('dfl_estimates') || '[]');
+  } catch {
+    return [];
+  }
+}
+
+export function saveEstimate(data) {
+  const all = getAllEstimates();
+  all.unshift({
+    ...data,
+    id: `EST-${Date.now()}`,
+    createdAt: new Date().toISOString()
+  });
+  localStorage.setItem('dfl_estimates', JSON.stringify(all));
+  return data;
+}
+
 export function getSubmissionById(id) {
   return getAllSubmissions().find((s) => s.uid === id) || null;
 }
@@ -27,13 +89,51 @@ export function getSubmissionById(id) {
 export function saveSubmission(data) {
   const all = getAllSubmissions();
   const existing = all.findIndex((s) => s.uid === data.uid);
+  
   if (existing > -1) {
     all[existing] = { ...all[existing], ...data, updatedAt: new Date().toISOString() };
   } else {
-    all.unshift({ ...data, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+    // New submission: randomly assign to an employee if no owner specified
+    const employees = getAllEmployees();
+    const randomEmployee = employees[Math.floor(Math.random() * employees.length)];
+    
+    all.unshift({ 
+      ...data, 
+      status: 'New',
+      assignedTo: data.assignedTo || randomEmployee.id,
+      meetingNotes: [],
+      createdAt: new Date().toISOString(), 
+      updatedAt: new Date().toISOString() 
+    });
   }
   localStorage.setItem(DB_KEY, JSON.stringify(all));
   return data;
+}
+
+export function updateLeadStatus(uid, newStatus, assignedTo) {
+  const all = getAllSubmissions();
+  const idx = all.findIndex((s) => s.uid === uid);
+  if (idx > -1) {
+    if (newStatus) all[idx].status = newStatus;
+    if (assignedTo) all[idx].assignedTo = assignedTo;
+    all[idx].updatedAt = new Date().toISOString();
+    localStorage.setItem(DB_KEY, JSON.stringify(all));
+  }
+}
+
+export function addMeetingNote(uid, note, isWhatsApp = false) {
+  const all = getAllSubmissions();
+  const idx = all.findIndex((s) => s.uid === uid);
+  if (idx > -1) {
+    if (!all[idx].meetingNotes) all[idx].meetingNotes = [];
+    all[idx].meetingNotes.push({
+      date: new Date().toISOString(),
+      note: note,
+      isWhatsApp: isWhatsApp
+    });
+    all[idx].updatedAt = new Date().toISOString();
+    localStorage.setItem(DB_KEY, JSON.stringify(all));
+  }
 }
 
 export function deleteSubmission(uid) {
@@ -47,14 +147,14 @@ export function exportToCSV(submissions) {
     'UID', 'Full Name', 'Date of Birth', 'Age', 'Gender',
     'Phone', 'Email', 'Address', 'City', 'State', 'Pincode',
     'Aadhar Number', 'PAN Number', 'Loan Type', 'Loan Amount',
-    'Status', 'Submitted At',
+    'Status', 'Assigned To', 'Submitted At',
   ];
 
   const rows = submissions.map((s) => [
     s.uid, s.fullName, s.dob, s.age, s.gender,
     s.phone, s.email, s.address, s.city, s.state, s.pincode,
     s.aadharNumber, s.panNumber, s.loanType, s.loanAmount,
-    s.status || 'Pending', s.createdAt,
+    s.status || 'Pending', s.assignedTo || 'Unassigned', s.createdAt,
   ]);
 
   const csvContent = [headers, ...rows]

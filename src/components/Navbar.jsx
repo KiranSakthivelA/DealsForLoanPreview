@@ -55,7 +55,7 @@ function NavDropdown({ title, items }) {
           {items.map((item, idx) => (
             <Link 
               key={idx} 
-              to="/apply" 
+              to={`/apply?service=${encodeURIComponent(item)}`} 
               className="dropdown-item"
               style={{
                 padding: '0.75rem 1rem',
@@ -98,12 +98,9 @@ export default function Navbar() {
 
   const actionLinks = (
     <>
-      <Link to="#" onClick={() => setIsMobileMenuOpen(false)} style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
-        Become a Partner
-      </Link>
-      <Link to="#" onClick={() => setIsMobileMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
-        <span style={{ backgroundColor: 'red', color: 'white', fontSize: '0.65rem', padding: '0.15rem 0.35rem', borderRadius: '4px', fontWeight: 800 }}>NEW</span>
-        Check Cibil Score
+      <Link to="/calculator" onClick={() => setIsMobileMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+        <span style={{ backgroundColor: 'var(--primary-color)', color: 'white', fontSize: '0.65rem', padding: '0.15rem 0.35rem', borderRadius: '4px', fontWeight: 800 }}>TOOL</span>
+        Loan Calculator
       </Link>
       <Link 
         to="/apply" 
@@ -126,7 +123,16 @@ export default function Navbar() {
   );
 
   return (
-    <nav style={{ backgroundColor: 'white', padding: '1.25rem 4rem', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+    <nav style={{ 
+      backgroundColor: 'rgba(255, 255, 255, 0.85)', 
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      padding: '1.25rem 4rem', 
+      position: 'sticky', 
+      top: 0, 
+      zIndex: 100, 
+      borderBottom: '1px solid rgba(0,0,0,0.05)'
+    }}>
       <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
         {/* Logo - Left */}
         <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>

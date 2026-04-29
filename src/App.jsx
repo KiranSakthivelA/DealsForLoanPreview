@@ -5,13 +5,27 @@ import Navbar from './components/Navbar';
 import ClientForm from './pages/ClientForm';
 import AdminDashboard from './pages/AdminDashboard';
 import LandingPage from './pages/LandingPage';
+import About from './pages/About';
+import Calculator from './pages/Calculator';
+import Login from './pages/Login';
 import Footer from './components/Footer';
-import { Menu } from 'lucide-react';
+import { Menu, LogOut } from 'lucide-react';
+import { getLoggedInUser, logoutUser } from './store/db';
 
 function AppLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isLoginRoute = location.pathname === '/login';
+
+  const handleLogout = () => {
+    logoutUser();
+    window.location.href = '/login';
+  };
+
+  if (isLoginRoute) {
+    return <Login />;
+  }
 
   if (!isAdminRoute) {
     return (
@@ -21,12 +35,19 @@ function AppLayout() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/apply" element={<ClientForm />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/calculator" element={<Calculator />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
         <Footer />
       </div>
     );
+  }
+
+  const user = getLoggedInUser();
+  if (!user) {
+    return <Navigate to="/login" />;
   }
 
   return (
@@ -49,18 +70,21 @@ function AppLayout() {
           </button>
           
           <div className="header-actions" style={{ marginLeft: 'auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', marginLeft: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginLeft: '0.5rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)' }}>Admin User</span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>admin@dealsforloan.com</span>
+                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)' }}>{user.name}</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{user.role.toUpperCase()}</span>
               </div>
+              <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--error-color)', display: 'flex', alignItems: 'center' }}>
+                <LogOut size={20} />
+              </button>
             </div>
           </div>
         </header>
 
         <main className="page-content">
           <Routes>
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin" element={<AdminDashboard user={user} />} />
             <Route path="*" element={<Navigate to="/admin" />} />
           </Routes>
         </main>
@@ -72,7 +96,10 @@ function AppLayout() {
 function App() {
   return (
     <Router>
-      <AppLayout />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/*" element={<AppLayout />} />
+      </Routes>
     </Router>
   );
 }
