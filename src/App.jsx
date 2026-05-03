@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import ClientForm from './pages/ClientForm';
@@ -19,7 +19,7 @@ import { getLoggedInUser, logoutUser } from './store/db';
 function Sidebar({ currentPath, onNav, isOpen, onClose }) {
   const logout = () => {
     logoutUser();
-    window.location.replace('/login');
+    window.location.replace('/managercrm');
   };
 
   const navItems = [
@@ -135,7 +135,39 @@ function DashboardShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const user = getLoggedInUser();
-  if (!user) return <Navigate to="/login" replace />;
+
+  // Auto-logout after 15 minutes of inactivity
+  useEffect(() => {
+    if (!user) return;
+    
+    let timeoutId;
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        logoutUser();
+        window.location.replace('/managercrm');
+      }, 15 * 60 * 1000); // 15 mins
+    };
+
+    window.addEventListener('mousemove', resetTimer);
+    window.addEventListener('keydown', resetTimer);
+    window.addEventListener('click', resetTimer);
+    window.addEventListener('scroll', resetTimer);
+    
+    resetTimer(); // initialize
+    
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('mousemove', resetTimer);
+      window.removeEventListener('keydown', resetTimer);
+      window.removeEventListener('click', resetTimer);
+      window.removeEventListener('scroll', resetTimer);
+    };
+  }, [user]);
+
+  if (!user) {
+    return <Login />;
+  }
 
   const currentPath = location.pathname;
 
@@ -170,7 +202,7 @@ function DashboardShell() {
               <div style={{ fontSize: '0.7rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{user.role}</div>
             </div>
             <button
-              onClick={() => { logoutUser(); window.location.replace('/login'); }}
+              onClick={() => { logoutUser(); window.location.replace('/managercrm'); }}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', display: 'flex', alignItems: 'center' }}
             >
               <LogOut size={20} />
@@ -209,7 +241,8 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<Login />} />
+        {/* /login route strictly redirects to /managercrm now that it handles auth internally */}
+        <Route path="/login" element={<Navigate to="/managercrm" replace />} />
 
         {/* Public */}
         <Route path="/" element={<PublicLayout><LandingPage /></PublicLayout>} />
