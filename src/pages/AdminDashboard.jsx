@@ -8,7 +8,7 @@ import {
 import { 
   getAllSubmissions, deleteSubmission, exportToCSV, REQUIRED_DOCUMENTS, 
   MOCK_USERS, LEAD_STATUSES, updateLeadStatus, addMeetingNote,
-  getAllEstimates
+  getAllEstimates, fetchFromCloud
 } from '../store/db';
 import ClientForm from './ClientForm';
 
@@ -35,20 +35,33 @@ export default function AdminDashboard({ user }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
-  const loadData = () => {
-    const all = getAllSubmissions();
+  const loadData = async () => {
+    // 1. Instantly load local data for fast UI
+    let all = getAllSubmissions();
     const ests = getAllEstimates();
+    
     if (isOwner) {
       setSubmissions(all);
     } else {
-      // Employee sees only their assigned leads
       setSubmissions(all.filter(s => s.assignedTo === user.id));
     }
     setEstimates(ests);
+
+    // 2. Fetch latest from Vercel DB in background and update UI
+    const cloudData = await fetchFromCloud();
+    if (cloudData) {
+      all = cloudData;
+      if (isOwner) {
+        setSubmissions(all);
+      } else {
+        setSubmissions(all.filter(s => s.assignedTo === user.id));
+      }
+      checkAgingLeads(all); // refresh popup logic with new data
+    }
   };
 
-  const checkAgingLeads = () => {
-    const all = getAllSubmissions();
+  const checkAgingLeads = (dataOverride = null) => {
+    const all = dataOverride || getAllSubmissions();
     const relevant = isOwner ? all : all.filter(s => s.assignedTo === user.id);
     // Show pending popup for leads that are New or Interested
     const pending = relevant.filter(s => s.status === 'New' || s.status === 'Interested');

@@ -73,6 +73,35 @@ export function generateUID() {
   return `DFL-${ts}-${rand}`;
 }
 
+// ---------- Cloud Sync Helpers ------------------------------
+export const syncToCloud = async (leads) => {
+  try {
+    await fetch('/api/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leads })
+    });
+  } catch (e) {
+    console.error('Cloud sync error (ignoring for local dev):', e);
+  }
+};
+
+export const fetchFromCloud = async () => {
+  try {
+    const res = await fetch('/api/sync');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        localStorage.setItem(DB_KEY, JSON.stringify(data));
+        return data;
+      }
+    }
+  } catch (e) {
+    console.error('Cloud fetch error (ignoring for local dev):', e);
+  }
+  return null;
+};
+
 // ---------- CRUD --------------------------------------------
 export function getAllSubmissions() {
   try {
@@ -119,13 +148,14 @@ export function saveSubmission(data) {
     all.unshift({
       ...data,
       status: 'New',
-      assignedTo: data.assignedTo || randomEmployee.id,
+      assignedTo: data.assignedTo || (randomEmployee ? randomEmployee.id : 'Admin'),
       meetingNotes: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
   }
   localStorage.setItem(DB_KEY, JSON.stringify(all));
+  syncToCloud(all);
   return data;
 }
 
@@ -137,6 +167,7 @@ export function updateLeadStatus(uid, newStatus, assignedTo) {
     if (assignedTo) all[idx].assignedTo = assignedTo;
     all[idx].updatedAt = new Date().toISOString();
     localStorage.setItem(DB_KEY, JSON.stringify(all));
+    syncToCloud(all);
   }
 }
 
@@ -158,6 +189,7 @@ export function addMeetingNote(uid, note, isWhatsApp = false) {
 export function deleteSubmission(uid) {
   const all = getAllSubmissions().filter((s) => s.uid !== uid);
   localStorage.setItem(DB_KEY, JSON.stringify(all));
+  syncToCloud(all);
 }
 
 // ---------- Spreadsheet / CSV export ------------------------
