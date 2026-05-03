@@ -113,7 +113,8 @@ p {
 
 /* Sidebar */
 .sidebar {
-  width: 260px;
+  width: 240px;
+  min-width: 240px;
   background-color: var(--surface-color);
   border-radius: var(--radius-xl);
   display: flex;
@@ -121,8 +122,10 @@ p {
   height: calc(100vh - 2rem);
   position: sticky;
   top: 1rem;
-  z-index: 20;
+  z-index: 100;
   box-shadow: var(--shadow-card);
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .sidebar-header {
@@ -198,6 +201,19 @@ p {
   color: var(--text-primary);
   cursor: pointer;
   padding: 0.5rem;
+}
+
+/* Sidebar overlay for mobile (global so it works on all screen sizes when toggled) */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 99;
+}
+
+.sidebar-overlay.open {
+  display: block;
 }
 
 /* Top Header */
@@ -552,86 +568,165 @@ p {
   flex-shrink: 0;
 }
 
-/* Mobile Responsiveness */
+/* ═══════════════════════════════════
+   MOBILE RESPONSIVENESS  (≤ 768px)
+═══════════════════════════════════ */
 @media (max-width: 768px) {
+
+  /* ── Layout shell ── */
   .app-container {
     padding: 0;
     gap: 0;
   }
 
+  .main-content {
+    border-radius: 0;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar slides in from left ── */
   .sidebar {
     position: fixed !important;
     top: 0;
     left: -100%;
-    width: 240px;
+    width: 260px;
     height: 100vh;
     border-radius: 0;
     z-index: 1000;
-    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 4px 0 24px rgba(0,0,0,0.1);
-    background: var(--surface-color); /* explicitly ensure background is solid */
+    transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+    background: #fff;
   }
 
   .sidebar.open {
     left: 0;
   }
 
+  /* ── Hamburger visible on mobile ── */
   .mobile-nav-toggle {
-    display: block;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
   }
 
-  .main-content {
-    border-radius: 0;
-  }
-
+  /* ── Top header sticks to top ── */
   .top-header {
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     position: sticky;
     top: 0;
     background: var(--background-color);
     z-index: 100;
+    border-bottom: 1px solid var(--border-color);
   }
 
+  /* ── Hide things on mobile ── */
+  .mobile-hide {
+    display: none !important;
+  }
+
+  /* ── Heading scale down ── */
+  h2 {
+    font-size: 1.5rem !important;
+  }
+
+  /* ── Cards ── */
+  .card {
+    padding: 1rem !important;
+    border-radius: 12px !important;
+  }
+
+  /* ── Stats stack to 2 col on phone ── */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+
+  /* ── Forms ── */
+  .form-row,
+  .form-row-3 {
+    grid-template-columns: 1fr;
+    gap: 0.875rem;
+  }
+
+  /* ── Split panel layout ── */
   .split-layout {
-    flex-direction: column-reverse;
+    flex-direction: column;
   }
 
   .split-sidebar {
     width: 100%;
   }
 
-  .card {
-    padding: 1.5rem !important;
-    border-radius: 16px !important;
+  /* ── CRM 3-col → stacked ── */
+  .crm-layout {
+    flex-direction: column !important;
+    gap: 1rem !important;
   }
 
-  h2 {
-    font-size: 1.75rem !important;
+  .crm-layout > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex-basis: auto !important;
+    flex: unset !important;
+    position: relative !important;
+    top: auto !important;
   }
 
-  .form-row, .form-row-3 {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+  /* ── WorkerCRM – tabs horizontal scroll ── */
+  .crm-sidebar {
+    flex-direction: row !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    gap: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
 
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  /* Overlay for mobile sidebar */
-  .sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.5);
-    z-index: 999;
+  .crm-sidebar::-webkit-scrollbar {
     display: none;
   }
 
-  .sidebar-overlay.open {
-    display: block;
+  .crm-sidebar button {
+    flex-shrink: 0 !important;
+    min-width: auto !important;
+    padding: 0.6rem 0.875rem !important;
+    font-size: 0.8rem !important;
+    transform: none !important;
+  }
+
+  .crm-form-container {
+    width: 100% !important;
+  }
+
+  /* ── Tables scroll horizontally ── */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.75rem 1rem;
+    white-space: nowrap;
+  }
+}
+
+/* ═══════════════════════════════════
+   EXTRA SMALL  (≤ 480px)
+═══════════════════════════════════ */
+@media (max-width: 480px) {
+
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .stat-card {
+    padding: 1rem !important;
+  }
+
+  .stat-card-value {
+    font-size: 2rem !important;
   }
 }
 
@@ -846,4 +941,37 @@ p {
   border-radius: var(--radius-sm);
   margin-bottom: 0.75rem;
   background-color: #f3f4f6;
+}
+
+/* Worker CRM Dashboard Responsive */
+@media (max-width: 900px) {
+  .crm-layout {
+    flex-direction: column !important;
+  }
+  
+  .crm-layout > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex-basis: auto !important;
+  }
+  
+  .crm-sidebar {
+    width: 100% !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    padding: 0.75rem !important;
+    white-space: nowrap !important;
+  }
+  
+  .crm-sidebar button {
+    display: inline-flex !important;
+    width: auto !important;
+    flex-shrink: 0 !important;
+    padding: 0.5rem 1rem !important;
+  }
+
+  .crm-form-container {
+    width: 100% !important;
+    padding: 1.5rem !important;
+  }
 }

@@ -1,87 +1,105 @@
-import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, CheckSquare, Calendar, BarChart2, Users, Settings, HelpCircle, LogOut } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { getLoggedInUser, logoutUser } from '../store/db';
+import { LayoutDashboard, UserPlus, CalendarDays, LogOut } from 'lucide-react';
 
-export default function Sidebar({ onClose, isOpen }) {
+const NAV_ITEMS = [
+  { path: '/admin',      icon: LayoutDashboard, label: 'Lead Details' },
+  { path: '/worker-crm', icon: UserPlus,         label: 'Add Lead'    },
+  { path: '/calendar',   icon: CalendarDays,     label: 'Calendar'    },
+];
+
+export default function Sidebar({ isOpen, onClose }) {
+  const navigate = useNavigate();
   const location = useLocation();
+  const user     = getLoggedInUser();
 
-  const handleLinkClick = () => {
+  const go = (path) => {
+    navigate(path);
     if (onClose) onClose();
   };
 
+  const logout = () => {
+    logoutUser();
+    window.location.replace('/login');
+  };
+
   return (
-    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-      {onClose && (
-        <button 
-          onClick={onClose} 
-          className="mobile-close-btn"
-          style={{ position: 'absolute', top: '1.25rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', display: window.innerWidth <= 768 ? 'block' : 'none' }}
-        >
-          ✕
-        </button>
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          onClick={onClose}
+          style={{
+            position: 'fixed', inset: 0,
+            backgroundColor: 'rgba(0,0,0,0.45)',
+            zIndex: 998,
+            display: 'none',
+          }}
+          className="sidebar-overlay-mobile"
+        />
       )}
-      <div className="sidebar-header">
-        <img src="/Asset/f.png" alt="Deals For Loan" style={{ height: '32px', objectFit: 'contain' }} />
-      </div>
-      
-      <nav className="sidebar-nav">
-        <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0.5rem 0 0.25rem 0.75rem' }}>
+
+      <aside className={`sidebar${isOpen ? ' open' : ''}`}>
+        {/* Logo */}
+        <div
+          className="sidebar-header"
+          onClick={() => go('/admin')}
+          style={{ cursor: 'pointer', borderBottom: '1px solid var(--border-color)', paddingBottom: '1.25rem' }}
+        >
+          <img src="/Asset/f.png" alt="Deals For Loan" style={{ height: '32px', objectFit: 'contain' }} />
+        </div>
+
+        {/* Section label */}
+        <div style={{
+          fontSize: '0.65rem', fontWeight: 800,
+          color: 'var(--text-muted)', textTransform: 'uppercase',
+          letterSpacing: '0.08em', padding: '1rem 1rem 0.5rem',
+        }}>
           Menu
         </div>
-        
-        <Link 
-          to="/admin" 
-          onClick={handleLinkClick}
-          className={`nav-item ${location.pathname === '/admin' ? 'active' : ''}`}
-        >
-          <LayoutDashboard size={18} />
-          Dashboard
-        </Link>
-        
-        <Link 
-          to="/apply" 
-          onClick={handleLinkClick}
-          className={`nav-item ${location.pathname === '/apply' ? 'active' : ''}`}
-        >
-          <CheckSquare size={18} />
-          Client Form
-        </Link>
 
-        <Link to="#" className="nav-item">
-          <Calendar size={18} />
-          Calendar
-        </Link>
+        {/* Nav links */}
+        <nav className="sidebar-nav">
+          {NAV_ITEMS.map(({ path, icon: Icon, label }) => {
+            const active = location.pathname === path;
+            return (
+              <button
+                key={path}
+                onClick={() => go(path)}
+                className={`nav-item${active ? ' active' : ''}`}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
+              >
+                <Icon size={18} strokeWidth={active ? 2.5 : 2} />
+                {label}
+              </button>
+            );
+          })}
+        </nav>
 
-        <Link to="#" className="nav-item">
-          <BarChart2 size={18} />
-          Analytics
-        </Link>
-
-        <Link to="#" className="nav-item">
-          <Users size={18} />
-          Team
-        </Link>
-
-        <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '1rem 0 0.25rem 0.75rem' }}>
-          General
-        </div>
-
-        <Link to="#" className="nav-item">
-          <Settings size={18} />
-          Settings
-        </Link>
-
-        <Link to="#" className="nav-item">
-          <HelpCircle size={18} />
-          Help
-        </Link>
-
-        <div style={{ marginTop: 'auto' }}>
-          <Link to="#" className="nav-item" style={{ color: 'var(--text-secondary)' }}>
-            <LogOut size={18} />
+        {/* User info + logout (pushed to bottom) */}
+        <div style={{ marginTop: 'auto', padding: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
+          {user && (
+            <div style={{
+              padding: '0.6rem 0.875rem',
+              marginBottom: '0.25rem',
+              borderRadius: 'var(--radius-pill)',
+              backgroundColor: 'var(--background-color)',
+              fontSize: '0.8rem',
+            }}>
+              <div style={{ fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
+              <div style={{ color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.05em' }}>{user.role}</div>
+            </div>
+          )}
+          <button
+            onClick={logout}
+            className="nav-item"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left', color: 'var(--error-color)' }}
+          >
+            <LogOut size={18} strokeWidth={2} />
             Logout
-          </Link>
+          </button>
         </div>
-      </nav>
-    </aside>
+      </aside>
+    </>
   );
 }

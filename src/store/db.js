@@ -8,20 +8,27 @@ const AUTH_KEY = 'dfl_auth_user';
 // ---------- CRM Users (1 Owner + 10 Employees) ----------------
 export const MOCK_USERS = [
   { id: 'u0', name: 'Admin Owner', email: 'owner@deals.com', role: 'owner', password: 'password123' },
-  { id: 'u1', name: 'Rahul S.', email: 'rahul@deals.com', role: 'employee', password: 'password123' },
-  { id: 'u2', name: 'Pooja M.', email: 'pooja@deals.com', role: 'employee', password: 'password123' },
-  { id: 'u3', name: 'Kiran A.', email: 'kiran@deals.com', role: 'employee', password: 'password123' },
-  { id: 'u4', name: 'Vikram S.', email: 'vikram@deals.com', role: 'employee', password: 'password123' },
-  { id: 'u5', name: 'Anjali D.', email: 'anjali@deals.com', role: 'employee', password: 'password123' },
-  { id: 'u6', name: 'Rohan K.', email: 'rohan@deals.com', role: 'employee', password: 'password123' },
-  { id: 'u7', name: 'Sneha P.', email: 'sneha@deals.com', role: 'employee', password: 'password123' },
-  { id: 'u8', name: 'Amit V.', email: 'amit@deals.com', role: 'employee', password: 'password123' },
-  { id: 'u9', name: 'Priya R.', email: 'priya@deals.com', role: 'employee', password: 'password123' },
-  { id: 'u10', name: 'Suresh N.', email: 'suresh@deals.com', role: 'employee', password: 'password123' }
+  { id: 'm1', name: 'Madurai Manager', email: 'manager.madurai@dealsforloan.in', role: 'manager', password: 'password123' },
+  { id: 'm2', name: 'Theni Manager', email: 'manager.theni@dealsforloan.in', role: 'manager', password: 'password123' },
+  { id: 'm3', name: 'Cumbum Manager', email: 'manager.cumbum@dealsforloan.in', role: 'manager', password: 'password123' }
+
 ];
 
 export const LEAD_STATUSES = [
-  "New", "Interested", "Documents Pending", "Verification", "Approved", "Disbursed", "Not Converted"
+  "New", "Interested", "Converted", "Not Closed"
+];
+
+export const SALES_PERSONS = [
+  "Arun Kumar",
+  "Balaji M",
+  "Dinesh Karthik",
+  "Ganesh R",
+  "Karthikeyan S",
+  "Manoj Prabhu",
+  "Naveen Raj",
+  "Pradeep Kumar",
+  "Rajesh Kannan",
+  "Suresh Babu"
 ];
 
 // ---------- Auth Helpers ------------------------------------
@@ -89,21 +96,21 @@ export function getSubmissionById(id) {
 export function saveSubmission(data) {
   const all = getAllSubmissions();
   const existing = all.findIndex((s) => s.uid === data.uid);
-  
+
   if (existing > -1) {
     all[existing] = { ...all[existing], ...data, updatedAt: new Date().toISOString() };
   } else {
     // New submission: randomly assign to an employee if no owner specified
     const employees = getAllEmployees();
     const randomEmployee = employees[Math.floor(Math.random() * employees.length)];
-    
-    all.unshift({ 
-      ...data, 
+
+    all.unshift({
+      ...data,
       status: 'New',
       assignedTo: data.assignedTo || randomEmployee.id,
       meetingNotes: [],
-      createdAt: new Date().toISOString(), 
-      updatedAt: new Date().toISOString() 
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     });
   }
   localStorage.setItem(DB_KEY, JSON.stringify(all));
@@ -188,11 +195,11 @@ export const LOAN_TYPES = [
 ];
 
 export const REQUIRED_DOCUMENTS = [
-  { key: 'aadharFront',    label: 'Aadhar Card – Front' },
-  { key: 'aadharBack',     label: 'Aadhar Card – Back' },
-  { key: 'panCard',        label: 'PAN Card' },
-  { key: 'photo',          label: 'Passport Size Photo' },
-  { key: 'bankStatement',  label: 'Bank Statement (6 months)' },
-  { key: 'salarySlip',     label: 'Latest Salary Slip / ITR' },
-  { key: 'addressProof',   label: 'Address Proof' },
+  { key: 'aadharFront', label: 'Aadhar Card – Front' },
+  { key: 'aadharBack', label: 'Aadhar Card – Back' },
+  { key: 'panCard', label: 'PAN Card' },
+  { key: 'photo', label: 'Passport Size Photo' },
+  { key: 'bankStatement', label: 'Bank Statement (6 months)' },
+  { key: 'salarySlip', label: 'Latest Salary Slip / ITR' },
+  { key: 'addressProof', label: 'Address Proof' },
 ];

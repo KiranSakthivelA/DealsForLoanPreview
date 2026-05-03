@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { 
-  Download, Search, FileText, Trash2, MapPin, 
-  Smartphone, CreditCard, Plus, FolderDown, 
-  MessageCircle, TrendingUp, Users, CheckCircle2, Clock, Calendar, ShieldAlert
+  Download, Search, Trash2,
+  Smartphone, Plus, FolderDown, 
+  MessageCircle, TrendingUp, Users, CheckCircle2, Calendar, ShieldAlert,
+  Phone, PhoneCall
 } from 'lucide-react';
 import { 
   getAllSubmissions, deleteSubmission, exportToCSV, REQUIRED_DOCUMENTS, 
@@ -11,24 +12,28 @@ import {
 } from '../store/db';
 import ClientForm from './ClientForm';
 
+import { useNavigate } from 'react-router-dom';
+
 export default function AdminDashboard({ user }) {
   const [submissions, setSubmissions] = useState([]);
   const [estimates, setEstimates] = useState([]);
   const [activeTab, setActiveTab] = useState('leads'); // 'leads' or 'estimates'
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLead, setSelectedLead] = useState(null);
-  const [showForm, setShowForm] = useState(false);
   const [noteInput, setNoteInput] = useState('');
+  const navigate = useNavigate();
 
   const isOwner = user?.role === 'owner';
+  const userId = user?.id;
+
+  const [showPendingPopup, setShowPendingPopup] = useState(false);
+  const [pendingLeadsList, setPendingLeadsList] = useState([]);
 
   useEffect(() => {
     loadData();
-    // Check for aging leads daily popup (Simulated)
-    if (!isOwner) {
-      checkAgingLeads();
-    }
-  }, [user]);
+    checkAgingLeads();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   const loadData = () => {
     const all = getAllSubmissions();
@@ -43,17 +48,12 @@ export default function AdminDashboard({ user }) {
   };
 
   const checkAgingLeads = () => {
-    const all = getAllSubmissions().filter(s => s.assignedTo === user.id);
-    const aging = all.filter(s => {
-      if (s.status === 'Approved' || s.status === 'Disbursed' || s.status === 'Not Converted') return false;
-      const lastContact = new Date(s.lastContacted || s.createdAt).getTime();
-      const now = new Date().getTime();
-      return (now - lastContact) > (24 * 60 * 60 * 1000); // More than 24h
-    });
-
-    if (aging.length > 0) {
-      alert(`Reminder: You have ${aging.length} leads that haven't been updated in over 24 hours. Please log a meeting note or update their status to avoid losing them!`);
-    }
+    const all = getAllSubmissions();
+    const relevant = isOwner ? all : all.filter(s => s.assignedTo === user.id);
+    // Show pending popup for leads that are New or Interested
+    const pending = relevant.filter(s => s.status === 'New' || s.status === 'Interested');
+    setPendingLeadsList(pending);
+    setShowPendingPopup(true); // Always show popup on login
   };
 
   const handleDelete = (uid) => {
@@ -118,69 +118,83 @@ export default function AdminDashboard({ user }) {
     (s.phone || '').includes(searchTerm)
   );
 
-  const totalCases = submissions.length;
-  const totalDisbursements = submissions.reduce((acc, curr) => {
-    if (curr.status === 'Disbursed') {
-      return acc + (parseFloat(curr.loanAmount) || 0);
-    }
-    return acc;
-  }, 0);
 
   // Top employees logic (For owner view)
   const employeeStats = MOCK_USERS.filter(u => u.role === 'employee').map(emp => {
     const empLeads = submissions.filter(s => s.assignedTo === emp.id);
     return {
       name: emp.name,
-      closed: empLeads.filter(s => s.status === 'Disbursed').length,
+      closed: empLeads.filter(s => s.status === 'Converted').length,
       target: 15
     };
   }).sort((a, b) => b.closed - a.closed).slice(0, 3);
 
-  if (showForm) {
-    return (
-      <div style={{ padding: '1rem' }}>
-        <button 
-          onClick={() => { setShowForm(false); loadData(); }} 
-          className="btn btn-secondary" 
-          style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderRadius: '99px' }}
-        >
-          ← Back to CRM
-        </button>
-        <ClientForm />
-      </div>
-    );
-  }
+  // Render logic
 
   return (
-    <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
-      {/* Header Actions */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h2 style={{ fontSize: '2rem', color: 'var(--accent-color)', fontWeight: 800, letterSpacing: '-0.03em' }}>
-            {isOwner ? 'CRM Overview' : 'My Daily Dashboard'}
+    <div style={{ padding: '1rem', animation: 'fadeIn 0.5s ease-out' }}>
+      
+      {/* Pending Leads Popup */}
+      {showPendingPopup && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'fadeIn 0.2s', padding: '1rem' }}>
+          <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '1.5rem', maxWidth: '500px', width: '100%', boxSizing: 'border-box', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', color: '#e11d48', flexWrap: 'wrap' }}>
+              <ShieldAlert size={28} style={{ flexShrink: 0 }} />
+              <h2 style={{ fontSize: '1.25rem', margin: 0, fontWeight: 700, flex: 1, minWidth: '200px' }}>Pending Leads Reminder</h2>
+            </div>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+              You have <strong>{pendingLeadsList.length}</strong> active leads that require follow-ups or status updates. Please review them today to ensure quick conversion!
+            </p>
+            <div style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
+              {pendingLeadsList.slice(0, 5).map(lead => (
+                <div key={lead.uid} style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-color)', fontSize: '0.9rem' }}>
+                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{lead.fullName}</span> 
+                  <span style={{ color: 'var(--text-muted)' }}> • {lead.status}</span>
+                </div>
+              ))}
+              {pendingLeadsList.length > 5 && (
+                <div style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', backgroundColor: '#f8fafc' }}>
+                  + {pendingLeadsList.length - 5} more pending leads
+                </div>
+              )}
+            </div>
+            <button 
+              onClick={() => setShowPendingPopup(false)}
+              className="btn"
+              style={{ width: '100%', backgroundColor: 'var(--primary-color)', color: 'white', padding: '0.75rem', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+            >
+              I'll check them now
+            </button>
+          </div>
+        </div>
+      )}      {/* Header Actions */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div style={{ minWidth: 0 }}>
+          <h2 style={{ fontSize: '1.5rem', color: 'var(--accent-color)', fontWeight: 800, letterSpacing: '-0.03em', margin: 0 }}>
+            {isOwner ? 'CRM Overview' : 'My Dashboard'}
           </h2>
-          <p style={{ marginTop: '0.25rem', color: 'var(--text-secondary)' }}>
-            {isOwner ? 'Manage your 10 employees and track global leads.' : `Welcome back, ${user?.name}. Log your client meetings below.`}
+          <p style={{ marginTop: '0.25rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+            {isOwner ? 'Manage employees and track leads.' : `Welcome, ${user?.name}.`}
           </p>
         </div>
         
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', backgroundColor: '#f1f5f9', padding: '0.25rem', borderRadius: '99px', marginRight: '1rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', backgroundColor: '#f1f5f9', padding: '0.2rem', borderRadius: '99px' }}>
             <button 
               onClick={() => setActiveTab('leads')}
-              style={{ padding: '0.5rem 1.25rem', borderRadius: '99px', border: 'none', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.2s', backgroundColor: activeTab === 'leads' ? 'white' : 'transparent', color: activeTab === 'leads' ? 'var(--accent-color)' : 'var(--text-secondary)', boxShadow: activeTab === 'leads' ? '0 2px 10px rgba(0,0,0,0.05)' : 'none' }}
+              style={{ padding: '0.4rem 0.875rem', borderRadius: '99px', border: 'none', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s', backgroundColor: activeTab === 'leads' ? 'white' : 'transparent', color: activeTab === 'leads' ? 'var(--accent-color)' : 'var(--text-secondary)', boxShadow: activeTab === 'leads' ? '0 2px 10px rgba(0,0,0,0.05)' : 'none' }}
             >
-              Pipeline
+              Leads
             </button>
             <button 
               onClick={() => setActiveTab('estimates')}
-              style={{ padding: '0.5rem 1.25rem', borderRadius: '99px', border: 'none', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.2s', backgroundColor: activeTab === 'estimates' ? 'white' : 'transparent', color: activeTab === 'estimates' ? 'var(--accent-color)' : 'var(--text-secondary)', boxShadow: activeTab === 'estimates' ? '0 2px 10px rgba(0,0,0,0.05)' : 'none' }}
+              style={{ padding: '0.4rem 0.875rem', borderRadius: '99px', border: 'none', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s', backgroundColor: activeTab === 'estimates' ? 'white' : 'transparent', color: activeTab === 'estimates' ? 'var(--accent-color)' : 'var(--text-secondary)', boxShadow: activeTab === 'estimates' ? '0 2px 10px rgba(0,0,0,0.05)' : 'none' }}
             >
               Estimates ({estimates.length})
             </button>
           </div>
-          <div className="header-search mobile-hide" style={{ width: '250px' }}>
-            <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+          <div className="header-search mobile-hide" style={{ width: '200px' }}>
+            <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             <input 
               type="text" 
               placeholder="Search..." 
@@ -190,39 +204,30 @@ export default function AdminDashboard({ user }) {
             />
           </div>
           {isOwner && (
-            <button className="btn" style={{ backgroundColor: 'white', color: 'var(--accent-color)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)', borderRadius: '99px' }} onClick={handleExport}>
-               <Download size={16} /> Export
+            <button className="btn" style={{ backgroundColor: 'white', color: 'var(--accent-color)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)', borderRadius: '99px', padding: '0.5rem 0.875rem', fontSize: '0.8rem' }} onClick={handleExport}>
+               <Download size={14} /> <span className="mobile-hide">Export</span>
             </button>
           )}
-          <button className="btn" style={{ backgroundColor: 'var(--accent-color)', color: 'white', borderRadius: '99px', boxShadow: '0 4px 15px rgba(45, 46, 137, 0.2)' }} onClick={() => setShowForm(true)}>
-            <Plus size={18} /> New Lead
+          <button className="btn" style={{ backgroundColor: 'var(--accent-color)', color: 'white', borderRadius: '99px', boxShadow: '0 4px 15px rgba(45, 46, 137, 0.2)', padding: '0.5rem 0.875rem', fontSize: '0.8rem' }} onClick={() => navigate('/worker-crm')}>
+            <Plus size={16} /> New Lead
           </button>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
+      <div className="stats-grid">
         <div className="stat-card" style={{ background: 'linear-gradient(135deg, var(--accent-color) 0%, #1a1b5d 100%)', color: 'white', border: 'none' }}>
           <div className="stat-icon-top-right" style={{ borderColor: 'rgba(255,255,255,0.2)', color: 'white' }}>
-            <Users size={16} />
+            <CheckCircle2 size={16} />
           </div>
           <div className="stat-card-title" style={{ color: 'rgba(255,255,255,0.8)' }}>
-            {isOwner ? 'Total Active Leads' : 'My Active Leads'}
+            Active Clients
           </div>
-          <div className="stat-card-value" style={{ color: 'white' }}>{totalCases}</div>
+          <div className="stat-card-value" style={{ color: 'white' }}>
+            {submissions.filter(s => s.status === 'Converted').length}
+          </div>
           <div className="stat-card-subtitle" style={{ color: 'rgba(255,255,255,0.7)' }}>
-            {isOwner ? 'Across 10 employees' : 'Currently assigned to you'}
-          </div>
-        </div>
-        
-        <div className="stat-card">
-          <div className="stat-icon-top-right">
-            <TrendingUp size={16} color="var(--primary-color)" />
-          </div>
-          <div className="stat-card-title">Disbursed Volume</div>
-          <div className="stat-card-value">₹ {totalDisbursements > 0 ? new Intl.NumberFormat('en-IN').format(totalDisbursements) : '0'}</div>
-          <div className="stat-card-subtitle" style={{ color: 'var(--text-muted)' }}>
-            Successful conversions
+            Successfully converted leads
           </div>
         </div>
 
@@ -230,18 +235,18 @@ export default function AdminDashboard({ user }) {
           <div className="stat-icon-top-right">
             <ShieldAlert size={16} color="#e11d48" />
           </div>
-          <div className="stat-card-title">Pending / Aging</div>
+          <div className="stat-card-title">Pending Leads</div>
           <div className="stat-card-value">
-            {submissions.filter(s => s.status !== 'Approved' && s.status !== 'Disbursed' && s.status !== 'Not Converted').length}
+            {submissions.filter(s => s.status === 'New' || s.status === 'Interested').length}
           </div>
           <div className="stat-card-subtitle" style={{ color: 'var(--text-muted)' }}>
-            Require attention today
+            New and Interested leads
           </div>
         </div>
       </div>
 
       {/* 3-Column Layout for CRM */}
-      <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+      <div className="crm-layout" style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
         
         {/* Left Column: Team & Automation (Owner only) */}
         {isOwner && (
@@ -296,7 +301,7 @@ export default function AdminDashboard({ user }) {
         {/* Middle Column: Lead Pipeline or Estimates */}
         <div className="card" style={{ flex: '2 1 500px', marginBottom: 0, overflow: 'hidden' }}>
           <div className="card-header" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: '#fafafa', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-             <h3 style={{ color: 'var(--accent-color)', fontWeight: 700 }}>{activeTab === 'leads' ? 'Lead Pipeline' : 'Quick Estimates'}</h3>
+             <h3 style={{ color: 'var(--accent-color)', fontWeight: 700 }}>{activeTab === 'leads' ? 'Active Leads' : 'Quick Estimates'}</h3>
           </div>
           
           <div className="table-responsive">
@@ -322,9 +327,9 @@ export default function AdminDashboard({ user }) {
                       const emp = MOCK_USERS.find(u => u.id === sub.assignedTo);
                       const statusColors = {
                         'New': { bg: '#e0f2fe', text: '#0369a1', border: '#bae6fd' },
-                        'Approved': { bg: '#dcfce7', text: '#15803d', border: '#bbf7d0' },
-                        'Disbursed': { bg: '#d1fae5', text: '#047857', border: '#a7f3d0' },
-                        'Not Converted': { bg: '#fee2e2', text: '#b91c1c', border: '#fecaca' }
+                        'Interested': { bg: '#fef3c7', text: '#b45309', border: '#fde68a' },
+                        'Converted': { bg: '#d1fae5', text: '#047857', border: '#a7f3d0' },
+                        'Not Closed': { bg: '#fee2e2', text: '#b91c1c', border: '#fecaca' }
                       };
                       const colorScheme = statusColors[sub.status] || { bg: '#fff7ed', text: '#ea580c', border: '#ffedd5' };
 
@@ -409,9 +414,9 @@ export default function AdminDashboard({ user }) {
           </div>
         </div>
 
-        {/* Right Column: Detailed View & CRM Actions */}
+        {/* Right Column: Lead Detail Panel */}
         {selectedLead ? (
-          <div className="card" style={{ flex: '1.5 1 300px', padding: '1.5rem', position: 'sticky', top: '100px', marginBottom: 0, borderTop: '4px solid var(--primary-color)' }}>
+          <div className="card" style={{ flex: '1.5 1 300px', padding: '1.25rem', position: 'sticky', top: '80px', marginBottom: 0, borderTop: '4px solid var(--primary-color)', minWidth: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
               <h3 style={{ fontSize: '1.125rem', color: 'var(--accent-color)', fontWeight: 800 }}>Lead Details</h3>
               <button 
@@ -461,24 +466,49 @@ export default function AdminDashboard({ user }) {
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                <Smartphone size={16} color="var(--primary-color)" style={{ marginTop: '2px' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <Smartphone size={16} color="var(--primary-color)" />
                 <div>
                   <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{selectedLead.phone}</div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{selectedLead.email}</div>
                 </div>
               </div>
+              {/* Call & WhatsApp Action Buttons */}
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <a
+                  href={`tel:${selectedLead.phone}`}
+                  style={{
+                    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                    padding: '0.6rem 1rem', borderRadius: '10px', textDecoration: 'none', fontWeight: 600,
+                    fontSize: '0.85rem', backgroundColor: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe'
+                  }}
+                >
+                  <PhoneCall size={15} /> Call
+                </a>
+                <a
+                  href={`https://wa.me/91${selectedLead.phone?.replace(/\D/g, '')}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                    padding: '0.6rem 1rem', borderRadius: '10px', textDecoration: 'none', fontWeight: 600,
+                    fontSize: '0.85rem', backgroundColor: '#dcfce7', color: '#15803d', border: '1px solid #bbf7d0'
+                  }}
+                >
+                  <MessageCircle size={15} /> WhatsApp
+                </a>
+              </div>
             </div>
 
-            {/* Log Meeting / Notes Form */}
-            <div style={{ marginBottom: '2rem' }}>
+            {/* Daily Updates & Next Follow-Up */}
+            <div style={{ marginBottom: '1.5rem' }}>
               <h4 style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Calendar size={16} /> Daily Log / Notes
+                <Calendar size={16} /> Daily Updates
               </h4>
-              <div style={{ backgroundColor: '#fff', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '0.75rem', maxHeight: '150px', overflowY: 'auto', marginBottom: '1rem' }}>
+              <div style={{ backgroundColor: '#fff', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '0.75rem', maxHeight: '140px', overflowY: 'auto', marginBottom: '0.75rem' }}>
                 {(!selectedLead.meetingNotes || selectedLead.meetingNotes.length === 0) ? (
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center' }}>No notes logged yet.</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center' }}>No updates logged yet.</div>
                 ) : (
                   selectedLead.meetingNotes.map((note, idx) => (
                     <div key={idx} style={{ fontSize: '0.8rem', paddingBottom: '0.5rem', marginBottom: '0.5rem', borderBottom: '1px solid #f1f5f9' }}>
@@ -490,25 +520,36 @@ export default function AdminDashboard({ user }) {
                   ))
                 )}
               </div>
-              <form onSubmit={handleAddNote} style={{ display: 'flex', gap: '0.5rem' }}>
+              <form onSubmit={handleAddNote} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
                 <input 
                   type="text" 
                   value={noteInput} 
                   onChange={(e) => setNoteInput(e.target.value)} 
-                  placeholder="Met client, collected docs..." 
+                  placeholder="Add an update or remarks..." 
                   className="form-control" 
                   style={{ fontSize: '0.85rem', flex: 1 }}
                 />
                 <button type="submit" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>Add</button>
               </form>
-              <button 
-                type="button" 
-                onClick={handleSendWhatsApp} 
-                className="btn" 
-                style={{ width: '100%', marginTop: '0.5rem', backgroundColor: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-              >
-                <MessageCircle size={16} /> Trigger WhatsApp Update
-              </button>
+
+              {/* Next Follow Up Date */}
+              <div style={{ marginBottom: '0.75rem' }}>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>Next Follow Up Date</label>
+                <input
+                  type="date"
+                  defaultValue={selectedLead.followUpDate || ''}
+                  min={new Date().toISOString().slice(0, 10)}
+                  onChange={(e) => {
+                    import('../store/db').then(({ updateLeadStatus }) => {
+                      const all = JSON.parse(localStorage.getItem('dfl_submissions') || '[]');
+                      const idx = all.findIndex(s => s.uid === selectedLead.uid);
+                      if (idx > -1) { all[idx].followUpDate = e.target.value; localStorage.setItem('dfl_submissions', JSON.stringify(all)); }
+                    });
+                  }}
+                  className="form-control"
+                  style={{ fontSize: '0.85rem', height: '36px' }}
+                />
+              </div>
             </div>
 
             {isOwner && (
