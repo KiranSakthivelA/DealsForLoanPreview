@@ -47,7 +47,7 @@ export default function Login() {
     setTimeout(() => {
       const user = loginUser(email, password);
       if (user) {
-        navigate('/admin');
+        navigate('/managercrm');
       } else {
         setError('Invalid email or password. Please try again.');
         setLoading(false);

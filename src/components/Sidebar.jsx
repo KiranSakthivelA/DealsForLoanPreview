@@ -3,7 +3,7 @@ import { getLoggedInUser, logoutUser } from '../store/db';
 import { LayoutDashboard, UserPlus, CalendarDays, LogOut } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { path: '/admin',      icon: LayoutDashboard, label: 'Lead Details' },
+  { path: '/managercrm',      icon: LayoutDashboard, label: 'Lead Details' },
   { path: '/worker-crm', icon: UserPlus,         label: 'Add Lead'    },
   { path: '/calendar',   icon: CalendarDays,     label: 'Calendar'    },
 ];
@@ -43,7 +43,7 @@ export default function Sidebar({ isOpen, onClose }) {
         {/* Logo */}
         <div
           className="sidebar-header"
-          onClick={() => go('/admin')}
+          onClick={() => go('/managercrm')}
           style={{ cursor: 'pointer', borderBottom: '1px solid var(--border-color)', paddingBottom: '1.25rem' }}
         >
           <img src="/Asset/f.png" alt="Deals For Loan" style={{ height: '32px', objectFit: 'contain' }} />

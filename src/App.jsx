@@ -23,7 +23,7 @@ function Sidebar({ currentPath, onNav, isOpen, onClose }) {
   };
 
   const navItems = [
-    { path: '/admin',      icon: <LayoutDashboard size={18} />, label: 'Lead Details' },
+    { path: '/managercrm',      icon: <LayoutDashboard size={18} />, label: 'Lead Details' },
     { path: '/worker-crm', icon: <UserPlus size={18} />,        label: 'Add Lead'    },
     { path: '/calendar',   icon: <CalendarDays size={18} />,    label: 'Calendar'    },
   ];
@@ -47,7 +47,7 @@ function Sidebar({ currentPath, onNav, isOpen, onClose }) {
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
         {/* Logo */}
         <div
-          onClick={() => { onNav('/admin'); onClose(); }}
+          onClick={() => { onNav('/managercrm'); onClose(); }}
           style={{
             padding: '1.25rem 1.5rem',
             borderBottom: '1px solid #f0f0f0',
@@ -126,7 +126,7 @@ function Sidebar({ currentPath, onNav, isOpen, onClose }) {
 }
 
 // ─────────────────────────────────────────────
-// Dashboard shell – handles all /admin /worker-crm /calendar
+// Dashboard shell – handles all /managercrm /worker-crm /calendar
 // Uses useNavigate to change URL + conditionally renders page
 // ─────────────────────────────────────────────
 function DashboardShell() {
@@ -180,7 +180,7 @@ function DashboardShell() {
 
         {/* Page content — conditional render based on URL */}
         <main style={{ flex: 1 }}>
-          {currentPath === '/admin'      && <AdminDashboard user={user} />}
+          {currentPath === '/managercrm'      && <AdminDashboard user={user} />}
           {currentPath === '/worker-crm' && <WorkerCRM />}
           {currentPath === '/calendar'   && <CalendarView />}
         </main>
@@ -218,7 +218,7 @@ export default function App() {
         <Route path="/apply" element={<PublicLayout><ClientForm /></PublicLayout>} />
 
         {/* Dashboard – all three pages go through DashboardShell */}
-        <Route path="/admin"      element={<DashboardShell />} />
+        <Route path="/managercrm"      element={<DashboardShell />} />
         <Route path="/worker-crm" element={<DashboardShell />} />
         <Route path="/calendar"   element={<DashboardShell />} />
 

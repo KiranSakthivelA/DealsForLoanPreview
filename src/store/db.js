@@ -35,19 +35,31 @@ export const SALES_PERSONS = [
 export const loginUser = (email, password) => {
   const user = MOCK_USERS.find(u => u.email === email && u.password === password);
   if (user) {
-    localStorage.setItem(AUTH_KEY, JSON.stringify(user));
+    // Clear any old localStorage session (migration safety)
+    localStorage.removeItem(AUTH_KEY);
+    // Use sessionStorage — clears when tab/browser closes
+    sessionStorage.setItem(AUTH_KEY, JSON.stringify(user));
     return user;
   }
   return null;
 };
 
 export const logoutUser = () => {
-  localStorage.removeItem(AUTH_KEY);
+  sessionStorage.removeItem(AUTH_KEY);
+  localStorage.removeItem(AUTH_KEY); // clear legacy too
 };
 
 export const getLoggedInUser = () => {
-  const data = localStorage.getItem(AUTH_KEY);
-  return data ? JSON.parse(data) : null;
+  // Check sessionStorage first (new), fallback removes any old localStorage session
+  const session = sessionStorage.getItem(AUTH_KEY);
+  if (session) {
+    try { return JSON.parse(session); } catch { return null; }
+  }
+  // If old localStorage session exists, clear it and force re-login
+  if (localStorage.getItem(AUTH_KEY)) {
+    localStorage.removeItem(AUTH_KEY);
+  }
+  return null;
 };
 
 export const getAllEmployees = () => {
