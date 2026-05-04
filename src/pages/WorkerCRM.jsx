@@ -83,7 +83,7 @@ export default function WorkerCRM() {
       // Redirect to dashboard after short delay
       setTimeout(() => {
         setShowSuccess(false);
-        navigate('/managercrm');
+        navigate('/crm');
       }, 1500);
       
       // Reset form

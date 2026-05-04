@@ -19,11 +19,11 @@ import { getLoggedInUser, logoutUser } from './store/db';
 function Sidebar({ currentPath, onNav, isOpen, onClose }) {
   const logout = () => {
     logoutUser();
-    window.location.replace('/managercrm');
+    window.location.replace('/crm');
   };
 
   const navItems = [
-    { path: '/managercrm',      icon: <LayoutDashboard size={18} />, label: 'Lead Details' },
+    { path: '/crm',      icon: <LayoutDashboard size={18} />, label: 'Lead Details' },
     { path: '/worker-crm', icon: <UserPlus size={18} />,        label: 'Add Lead'    },
     { path: '/calendar',   icon: <CalendarDays size={18} />,    label: 'Calendar'    },
   ];
@@ -47,7 +47,7 @@ function Sidebar({ currentPath, onNav, isOpen, onClose }) {
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
         {/* Logo */}
         <div
-          onClick={() => { onNav('/managercrm'); onClose(); }}
+          onClick={() => { onNav('/crm'); onClose(); }}
           style={{
             padding: '1.25rem 1.5rem',
             borderBottom: '1px solid #f0f0f0',
@@ -126,7 +126,7 @@ function Sidebar({ currentPath, onNav, isOpen, onClose }) {
 }
 
 // ─────────────────────────────────────────────
-// Dashboard shell – handles all /managercrm /worker-crm /calendar
+// Dashboard shell – handles all /crm /worker-crm /calendar
 // Uses useNavigate to change URL + conditionally renders page
 // ─────────────────────────────────────────────
 function DashboardShell() {
@@ -145,7 +145,7 @@ function DashboardShell() {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         logoutUser();
-        window.location.replace('/managercrm');
+        window.location.replace('/crm');
       }, 15 * 60 * 1000); // 15 mins
     };
 
@@ -202,7 +202,7 @@ function DashboardShell() {
               <div style={{ fontSize: '0.7rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{user.role}</div>
             </div>
             <button
-              onClick={() => { logoutUser(); window.location.replace('/managercrm'); }}
+              onClick={() => { logoutUser(); window.location.replace('/crm'); }}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', display: 'flex', alignItems: 'center' }}
             >
               <LogOut size={20} />
@@ -212,7 +212,7 @@ function DashboardShell() {
 
         {/* Page content — conditional render based on URL */}
         <main style={{ flex: 1 }}>
-          {currentPath === '/managercrm'      && <AdminDashboard user={user} />}
+          {currentPath === '/crm'      && <AdminDashboard user={user} />}
           {currentPath === '/worker-crm' && <WorkerCRM />}
           {currentPath === '/calendar'   && <CalendarView />}
         </main>
@@ -241,8 +241,8 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        {/* /login route strictly redirects to /managercrm now that it handles auth internally */}
-        <Route path="/login" element={<Navigate to="/managercrm" replace />} />
+        {/* /login route strictly redirects to /crm now that it handles auth internally */}
+        <Route path="/login" element={<Navigate to="/crm" replace />} />
 
         {/* Public */}
         <Route path="/" element={<PublicLayout><LandingPage /></PublicLayout>} />
@@ -251,7 +251,7 @@ export default function App() {
         <Route path="/apply" element={<PublicLayout><ClientForm /></PublicLayout>} />
 
         {/* Dashboard – all three pages go through DashboardShell */}
-        <Route path="/managercrm"      element={<DashboardShell />} />
+        <Route path="/crm"      element={<DashboardShell />} />
         <Route path="/worker-crm" element={<DashboardShell />} />
         <Route path="/calendar"   element={<DashboardShell />} />
 
@@ -260,3 +260,4 @@ export default function App() {
     </Router>
   );
 }
+
