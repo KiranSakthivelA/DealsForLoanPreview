@@ -19,8 +19,8 @@ export const LEAD_STATUSES = [
 ];
 
 export const SALES_PERSONS = [
-  "Sakthivel s",
-  "Sethu arun kumar m",
+  "Sakthivel S",
+  "Sethu Arun Kumar M",
   "Arun R",
   "Karthik",
   "Raja",
