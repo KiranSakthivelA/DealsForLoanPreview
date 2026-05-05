@@ -1,12 +1,65 @@
 import { useState, useEffect } from 'react';
 import {
-  ClipboardList, CheckCircle2, Clock, Phone, Mail, Calendar,
-  Download, Shield, ChevronDown, Gift
+  ClipboardList, CheckCircle2, Phone, Mail, Calendar,
+  Download, Shield, ChevronDown, Gift, BadgeCheck
 } from 'lucide-react';
 import {
-  getAllOnboardings, updateOnboardingStatus,
+  getAllOnboardings, updateOnboardingStatus, closeDeal,
   grantOnboardingAccess, revokeOnboardingAccess, MOCK_USERS
 } from '../store/db';
+
+// ─── Deal Done Modal ───────────────────────────────────────────
+function DealModal({ onb, onClose, onDone }) {
+  const isBT = (onb.loanType || '').toLowerCase().includes('bt');
+  const sixMonths = new Date();
+  sixMonths.setMonth(sixMonths.getMonth() + 6);
+  const defaultFollow = isBT ? sixMonths.toISOString().slice(0, 10) : '';
+
+  const [amount, setAmount]   = useState('');
+  const [followUp, setFollowUp] = useState(defaultFollow);
+  const [err, setErr]         = useState('');
+
+  const submit = () => {
+    const num = parseFloat(amount);
+    if (!amount || isNaN(num) || num <= 0) { setErr('Enter a valid amount greater than 0'); return; }
+    closeDeal(onb.id, num, followUp || null);
+    onDone();
+    onClose();
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div style={{ background: 'white', borderRadius: '18px', padding: '1.75rem', maxWidth: '420px', width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem' }}>
+          <BadgeCheck size={26} color="#10b981" />
+          <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#1f2937' }}>Mark Deal as Closed</h3>
+        </div>
+        <p style={{ color: '#6b7280', fontSize: '0.83rem', marginBottom: '1.25rem' }}>
+          Enter the final sanctioned / disbursed amount for <strong>{onb.applicant?.name}</strong> ({onb.loanType}).
+        </p>
+
+        <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Deal Amount (₹) *</label>
+        <input
+          type="number" min="1" placeholder="e.g. 500000"
+          value={amount} onChange={e => { setAmount(e.target.value); setErr(''); }}
+          style={{ width: '100%', boxSizing: 'border-box', marginTop: '0.3rem', marginBottom: err ? '0.25rem' : '1rem', padding: '0.7rem 1rem', border: `1.5px solid ${err ? '#ef4444' : '#e5e7eb'}`, borderRadius: '10px', fontSize: '0.95rem', outline: 'none' }}
+        />
+        {err && <p style={{ color: '#ef4444', fontSize: '0.76rem', marginBottom: '0.875rem', fontWeight: 600 }}>{err}</p>}
+
+        <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Follow-up Date {isBT && <span style={{ color: '#7c3aed', fontWeight: 600 }}>(BT+Topup — auto 6 months)</span>}</label>
+        <input
+          type="date" value={followUp} onChange={e => setFollowUp(e.target.value)}
+          style={{ width: '100%', boxSizing: 'border-box', marginTop: '0.3rem', marginBottom: '1.25rem', padding: '0.7rem 1rem', border: '1.5px solid #e5e7eb', borderRadius: '10px', fontSize: '0.875rem', outline: 'none' }}
+        />
+
+        <div style={{ display: 'flex', gap: '0.625rem' }}>
+          <button onClick={onClose} style={{ flex: 1, padding: '0.7rem', borderRadius: '10px', border: '1.5px solid #e5e7eb', background: 'white', fontWeight: 700, cursor: 'pointer', color: '#6b7280' }}>Cancel</button>
+          <button onClick={submit} style={{ flex: 2, padding: '0.7rem', borderRadius: '10px', border: 'none', background: 'linear-gradient(135deg,#10b981,#059669)', color: 'white', fontWeight: 700, cursor: 'pointer', fontSize: '0.92rem' }}>✓ Confirm Deal Closed</button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ─── WhatsApp Helper ───────────────────────────────────────────
 function sendWhatsApp(phone, message) {
@@ -30,7 +83,8 @@ function isBirthdayToday(dob) {
 
 // ─── Client Card ───────────────────────────────────────────────
 function ClientCard({ onb, isOwner, userId, onRefresh }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded]     = useState(false);
+  const [showDeal, setShowDeal]     = useState(false);
   const status = onb.status || 'In Progress';
   const statusMeta = STATUS_OPTIONS.find(s => s.value === status) || STATUS_OPTIONS[0];
   const managers = MOCK_USERS.filter(u => u.role === 'manager');
@@ -69,6 +123,125 @@ function ClientCard({ onb, isOwner, userId, onRefresh }) {
 
   const canAccess = isOwner || (onb.grantedTo || []).includes(userId);
 
+  // ── Print / PDF front page ──────────────────────────────────
+  const printClientPDF = () => {
+    const a  = onb.applicant || {};
+    const co = onb.coApplicant;
+    const photoB64   = (onb.documents?.['Photo'] || []).find(s => s.base64)?.base64 || '';
+    const coPhotoB64 = co
+      ? (onb.documents?.['Photo'] || []).filter(s => s.base64).slice(1)[0]?.base64 || ''
+      : '';
+    const printedOn  = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+    // Use absolute URL so logo loads correctly from Blob origin
+    const logoUrl    = `${window.location.origin}/Asset/f.png`;
+
+    const field = (label, value) => value ? `
+      <div style="margin-bottom:10px">
+        <div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">${label}</div>
+        <div style="font-size:13px;color:#111827;font-weight:500;border-bottom:1px solid #f3f4f6;padding-bottom:4px">${value}</div>
+      </div>` : '';
+
+    const photoBox = (b64, name) => b64
+      ? `<img src="${b64}" style="width:100px;height:120px;object-fit:cover;border-radius:8px;border:2px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.12)" />`
+      : `<div style="width:100px;height:120px;border-radius:8px;border:2px dashed #d1d5db;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:#d1d5db;background:#f9fafb">${(name||'?')[0].toUpperCase()}</div>`;
+
+    const personSection = (label, p, photo) => `
+      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:18px;page-break-inside:avoid">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+          <div style="width:4px;height:20px;background:#f59e0b;border-radius:2px"></div>
+          <span style="font-size:12px;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:0.07em">${label}</span>
+        </div>
+        <div style="display:flex;gap:20px;align-items:flex-start">
+          <div style="flex-shrink:0">${photoBox(photo, p.name)}</div>
+          <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0 24px">
+            ${field('Full Name', p.name)}
+            ${field('Mobile Number', p.phone)}
+            ${field('Email Address', p.email)}
+            ${field('Date of Birth', p.dob ? new Date(p.dob).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) : '')}
+            ${field('Occupation', p.occupation)}
+            ${field('City', p.city)}
+            ${field('Pin Code', p.pincode)}
+            ${p.address ? `<div style="grid-column:1/-1;margin-bottom:10px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Address</div><div style="font-size:13px;color:#111827;font-weight:500;border-bottom:1px solid #f3f4f6;padding-bottom:4px">${p.address}</div></div>` : ''}
+          </div>
+        </div>
+      </div>`;
+
+    const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/>
+<title>Client Cover — ${a.name || 'Client'} | Deals For Loan</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  @page { size: A4 portrait; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; font-family:'Inter',Arial,sans-serif; color:#111827; background:#f8fafc; }
+  .page { width:210mm; min-height:297mm; margin:0 auto; background:white; display:flex; flex-direction:column; position:relative; overflow:hidden; }
+  .accent-bar { height:6px; background:linear-gradient(90deg,#f59e0b,#fbbf24,#fde68a); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .header { padding:20px 32px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #f3f4f6; }
+  .body { padding:20px 32px; flex:1; display:flex; flex-direction:column; }
+  .persons { flex:1; }
+  .remarks-wrap { margin-top:auto; padding-top:16px; }
+  .footer { padding:12px 32px; border-top:1px solid #f3f4f6; display:flex; justify-content:space-between; align-items:center; background:#fafafa; }
+  .watermark { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-30deg); font-size:72px; font-weight:900; color:rgba(245,158,11,0.04); white-space:nowrap; pointer-events:none; letter-spacing:-2px; }
+  .remarks-box { border:1.5px solid #e5e7eb; border-radius:10px; height:130px; width:100%; margin-top:6px; background:#fafafa; }
+  @media print {
+    html, body { background:white; }
+    .page { width:100%; min-height:100vh; box-shadow:none; }
+    .no-print { display:none !important; }
+    .accent-bar { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  }
+</style>
+</head><body>
+<div class="page">
+  <div class="watermark">DEALS FOR LOAN</div>
+  <div class="accent-bar"></div>
+
+  <!-- Header: logo + loan type only -->
+  <div class="header">
+    <img src="${logoUrl}" alt="Deals For Loan" style="height:40px;object-fit:contain" onerror="this.style.display='none'" />
+    <div style="display:inline-block;background:#fef3c7;color:#b45309;font-size:12px;font-weight:700;padding:5px 16px;border-radius:99px;border:1.5px solid #fde68a;letter-spacing:0.03em">${onb.loanType}</div>
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+    <div class="persons">
+      ${personSection('Applicant', a, photoB64)}
+      ${co?.name ? personSection('Co-Applicant', co, coPhotoB64) : ''}
+    </div>
+
+    <!-- Remarks pinned to bottom of body -->
+    <div class="remarks-wrap">
+      <div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Remarks / Notes</div>
+      <div class="remarks-box"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div style="font-size:10px;color:#9ca3af">Generated: ${printedOn}</div>
+    <div style="font-size:10px;color:#9ca3af">Deals For Loan &mdash; Confidential</div>
+  </div>
+</div>
+
+<!-- Print bar (hidden in print) -->
+<div class="no-print" style="position:fixed;bottom:0;left:0;right:0;background:rgba(17,24,39,0.95);padding:12px;display:flex;justify-content:center;gap:12px;backdrop-filter:blur(4px)">
+  <button onclick="window.print()" style="padding:10px 32px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
+    🖨&nbsp; Save / Print as PDF
+  </button>
+  <button onclick="window.close()" style="padding:10px 20px;background:transparent;color:#9ca3af;border:1px solid #374151;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
+    Close
+  </button>
+</div>
+</body></html>`;
+
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const tab  = window.open(url, '_blank');
+    if (tab) {
+      tab.addEventListener('beforeunload', () => URL.revokeObjectURL(url));
+    }
+  };
+
+
   return (
     <div style={{
       background: 'white', borderRadius: '14px', overflow: 'hidden',
@@ -79,10 +252,17 @@ function ClientCard({ onb, isOwner, userId, onRefresh }) {
       {/* Card header */}
       <div style={{ padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-start' }}>
         <div style={{ display: 'flex', gap: '0.875rem', alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
-          {/* Avatar */}
-          <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: `${statusMeta.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.1rem', fontWeight: 800, color: statusMeta.color }}>
-            {(onb.applicant?.name || '?')[0].toUpperCase()}
-          </div>
+          {/* Avatar — show uploaded Photo if available, else initial */}
+          {(() => {
+            const photoSlot = (onb.documents?.['Photo'] || []).find(s => s.base64);
+            return photoSlot ? (
+              <img src={photoSlot.base64} alt="client" style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: `2px solid ${statusMeta.color}` }} />
+            ) : (
+              <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: `${statusMeta.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.1rem', fontWeight: 800, color: statusMeta.color }}>
+                {(onb.applicant?.name || '?')[0].toUpperCase()}
+              </div>
+            );
+          })()}
           <div style={{ minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
               <span style={{ fontWeight: 800, fontSize: '1rem', color: '#1f2937' }}>{onb.applicant?.name || '—'}</span>
@@ -130,7 +310,25 @@ function ClientCard({ onb, isOwner, userId, onRefresh }) {
           <span style={{ fontSize: '0.72rem', background: '#f3f4f6', color: '#6b7280', padding: '0.2rem 0.6rem', borderRadius: '99px', fontWeight: 600 }}>
             {allFiles.length} doc{allFiles.length !== 1 ? 's' : ''} uploaded
           </span>
+          {/* Deal Done button — only if not yet completed */}
+          {status !== 'Completed' && (
+            <button onClick={() => setShowDeal(true)} style={{ marginTop: '0.15rem', padding: '0.3rem 0.75rem', borderRadius: '99px', border: 'none', background: 'linear-gradient(135deg,#10b981,#059669)', color: 'white', fontWeight: 700, fontSize: '0.72rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              <BadgeCheck size={12} /> Deal Done
+            </button>
+          )}
+          {/* Show closed amount if completed */}
+          {status === 'Completed' && onb.dealAmount && (
+            <span style={{ fontSize: '0.72rem', background: '#d1fae5', color: '#065f46', padding: '0.2rem 0.6rem', borderRadius: '99px', fontWeight: 700 }}>
+              ₹{Number(onb.dealAmount).toLocaleString('en-IN')}
+            </span>
+          )}
+          {/* Download PDF button */}
+          <button onClick={printClientPDF} style={{ marginTop: '0.15rem', padding: '0.3rem 0.75rem', borderRadius: '99px', border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 700, fontSize: '0.72rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            <Download size={11} /> PDF
+          </button>
         </div>
+        {/* Deal Modal */}
+        {showDeal && <DealModal onb={onb} onClose={() => setShowDeal(false)} onDone={onRefresh} />}
       </div>
 
       {/* Expand toggle */}

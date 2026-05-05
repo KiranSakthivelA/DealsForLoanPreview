@@ -182,6 +182,12 @@ export default function AdminDashboard({ user, initialTab = 'leads' }) {
                         </div>
                         <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.6rem', borderRadius: '99px', backgroundColor: lead.status === 'New' ? '#e0f2fe' : '#fef3c7', color: lead.status === 'New' ? '#0369a1' : '#b45309', fontWeight: 600 }}>{lead.status}</span>
                       </div>
+                      {/* Mobile number — click to call */}
+                      {lead.phone && (
+                        <a href={`tel:${lead.phone}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.3rem', color: '#374151', fontWeight: 700, fontSize: '0.82rem', textDecoration: 'none', background: '#f1f5f9', padding: '0.2rem 0.6rem', borderRadius: '99px', border: '1px solid #cbd5e1' }}>
+                          📞 {lead.phone}
+                        </a>
+                      )}
                       {lead.followUpDate ? (
                         <div style={{ marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: dateColor, fontSize: '0.78rem', fontWeight: 600 }}>
                           <Calendar size={12} /> {isOverdue ? '⚠️ Overdue — ' : 'Follow-up: '}{new Date(lead.followUpDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}

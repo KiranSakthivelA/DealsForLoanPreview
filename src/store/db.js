@@ -45,6 +45,17 @@ export function updateOnboardingStatus(onbId, status) {
   localStorage.setItem(ONB_KEY, JSON.stringify(all));
 }
 
+export function closeDeal(onbId, dealAmount, dealFollowUpDate) {
+  const all = getAllOnboardings();
+  const idx = all.findIndex(o => o.id === onbId);
+  if (idx === -1) return;
+  all[idx].status = 'Completed';
+  all[idx].dealAmount = dealAmount;
+  all[idx].dealFollowUpDate = dealFollowUpDate || null;
+  all[idx].statusUpdatedAt = new Date().toISOString();
+  localStorage.setItem(ONB_KEY, JSON.stringify(all));
+}
+
 
 // ---------- CRM Users (1 Owner + 10 Employees) ----------------
 export const MOCK_USERS = [

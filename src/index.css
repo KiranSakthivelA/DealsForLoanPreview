@@ -731,6 +731,126 @@ p {
   }
 }
 
+/* ═══════════════════════════════════
+   CLIENT ONBOARDING — MOBILE FIRST
+═══════════════════════════════════ */
+
+/* Onboarding page outer wrapper — stacks on mobile */
+@media (max-width: 768px) {
+
+  /* The flex row (sidebar + main) becomes a column */
+  .onboarding-body {
+    flex-direction: column !important;
+    overflow: visible !important;
+  }
+
+  /* Sidebar becomes a horizontal scrollable chip strip */
+  .onboarding-sidebar {
+    width: 100% !important;
+    min-width: unset !important;
+    border-right: none !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding: 0.5rem 0.75rem !important;
+    gap: 0.375rem !important;
+    flex-shrink: 0 !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .onboarding-sidebar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Loan type label header – hide on mobile (takes up space) */
+  .onboarding-sidebar > div:first-child {
+    display: none !important;
+  }
+
+  /* Each loan-type button → compact horizontal chip */
+  .onboarding-sidebar > button {
+    flex-direction: row !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    width: auto !important;
+    padding: 0.45rem 0.875rem !important;
+    border-radius: 99px !important;
+    border-left: none !important;
+    border: 1.5px solid transparent !important;
+    font-size: 0.78rem !important;
+  }
+
+  /* Main form area takes full width */
+  .onboarding-main {
+    flex: 1 !important;
+    padding: 0.875rem !important;
+    overflow-y: auto !important;
+  }
+
+  /* Form header card */
+  .onboarding-main .form-header-card {
+    padding: 0.875rem 1rem !important;
+  }
+
+  /* Applicant / doc panels */
+  .onboarding-main > form > div[style] {
+    padding: 1rem !important;
+  }
+
+  /* Document grid → single column */
+  .onboarding-docs-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Person fields grid → single column */
+  .onboarding-person-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Submit button — full width */
+  .onboarding-submit-row {
+    justify-content: stretch !important;
+  }
+
+  .onboarding-submit-row button {
+    width: 100% !important;
+  }
+
+  /* Address always full-width (already gridColumn 1/-1 but needs min-width reset) */
+  .onboarding-person-grid > div[style*="1 / -1"],
+  .onboarding-person-grid > div[style*="1/-1"] {
+    grid-column: 1 !important;
+  }
+}
+
+/* ═══════════════════════════════════
+   CLIENT FORM (Multi-step) — MOBILE
+═══════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Loan type grid — 2 columns on mobile */
+  .client-form-loan-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.625rem !important;
+  }
+
+  /* Step nav buttons — stack if needed */
+  .client-form-nav {
+    gap: 0.75rem !important;
+  }
+
+  /* Person fields in ClientForm — single column */
+  .client-form-person-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Doc sections grid — single column */
+  .client-form-docs {
+    gap: 0.75rem !important;
+  }
+}
+
 /* Global Utilities */
 .container {
   width: 100%;

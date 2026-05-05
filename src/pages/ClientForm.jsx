@@ -12,6 +12,7 @@ const LOAN_TYPES = [
   { label: 'Agri Loan',                 icon: '🌾', color: '#65a30d', bg: '#f7fee7' },
   { label: 'Vehicle Loan (Commercial)', icon: '🚛', color: '#64748b', bg: '#f8fafc' },
   { label: 'Vehicle Loan (Individual)', icon: '🚗', color: '#94a3b8', bg: '#f8fafc' },
+  { label: 'BT Topup',                  icon: '🔄', color: '#7c3aed', bg: '#f5f3ff' },
   { label: 'Credit Card',               icon: '💳', color: '#06b6d4', bg: '#ecfeff' },
   { label: 'Insurance',                 icon: '🛡️', color: '#ec4899', bg: '#fdf2f8' },
 ];
@@ -26,6 +27,7 @@ const LOAN_DOCS = {
   'Agri Loan':                  ['ID Proof', 'Address Proof', 'Photo', 'Income Proof', 'Land Documents', 'Property Documents', 'Other Documents'],
   'Vehicle Loan (Commercial)':  ['ID Proof', 'Address Proof', 'Photo', 'Income Proof', 'Bank Statement', 'Vehicle Quotation', 'Other Documents'],
   'Vehicle Loan (Individual)':  ['ID Proof', 'Address Proof', 'Photo', 'Income Proof', 'Bank Statement', 'Vehicle Quotation', 'Other Documents'],
+  'BT Topup':                   ['ID Proof', 'Address Proof', 'Photo', 'Income Proof', 'Bank Statement', 'Existing Loan Statement', 'Sanction Letter', 'Other Documents'],
   'Credit Card':                ['ID Proof', 'Address Proof', 'Photo', 'Income Proof', 'Bank Statement', 'Other Documents'],
   'Insurance':                  ['ID Proof', 'Address Proof', 'Photo', 'Other Documents'],
 };
@@ -63,27 +65,52 @@ const labelCss = {
 
 function ApplicantFields({ data, onChange }) {
   const set = (f) => (e) => onChange({ ...data, [f]: e.target.value });
-  const fields = [
-    { f: 'name',   label: 'Full Name *',      type: 'text',  placeholder: 'e.g. Ravi Kumar' },
-    { f: 'phone',  label: 'Mobile Number *',   type: 'tel',   placeholder: '10-digit number' },
-    { f: 'email',  label: 'Email Address',     type: 'email', placeholder: 'name@example.com' },
-    { f: 'dob',    label: 'Date of Birth',     type: 'date',  placeholder: '' },
-    { f: 'pan',    label: 'PAN Number',        type: 'text',  placeholder: 'ABCDE1234F' },
-    { f: 'aadhar', label: 'Aadhar Number',     type: 'text',  placeholder: '12-digit number' },
+  const fo = e => { e.target.style.borderColor = '#f39e1e'; e.target.style.boxShadow = '0 0 0 3px rgba(243,158,30,0.12)'; };
+  const bl = e => { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; };
+  const req = { color: '#ef4444', marginLeft: '2px' };
+
+  const textFields = [
+    { f: 'name',       label: 'Full Name',    type: 'text',  placeholder: 'e.g. Ravi Kumar' },
+    { f: 'phone',      label: 'Mobile Number', type: 'tel',   placeholder: '10-digit number' },
+    { f: 'email',      label: 'Email Address', type: 'email', placeholder: 'name@example.com' },
+    { f: 'dob',        label: 'Date of Birth', type: 'date',  placeholder: '' },
+    { f: 'occupation', label: 'Occupation',    type: 'text',  placeholder: 'e.g. Business / Service' },
   ];
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-      {fields.map(({ f, label, type, placeholder }) => (
+      {textFields.map(({ f, label, type, placeholder }) => (
         <div key={f}>
-          <label style={labelCss}>{label}</label>
+          <label style={labelCss}>{label}<span style={req}>*</span></label>
           <input
-            type={type} value={data[f]} placeholder={placeholder}
+            required type={type} value={data[f] || ''} placeholder={placeholder}
             onChange={set(f)} style={inputCss}
-            onFocus={e => { e.target.style.borderColor = '#f39e1e'; e.target.style.boxShadow = '0 0 0 3px rgba(243,158,30,0.12)'; }}
-            onBlur={e =>  { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; }}
+            onFocus={fo} onBlur={bl}
           />
         </div>
       ))}
+
+      {/* Address — full width */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <label style={labelCss}>Address<span style={req}>*</span></label>
+        <input
+          required type="text" value={data.address || ''} placeholder="Door No, Street, Area"
+          onChange={set('address')} style={inputCss}
+          onFocus={fo} onBlur={bl}
+        />
+      </div>
+
+      {/* City */}
+      <div>
+        <label style={labelCss}>City / Town<span style={req}>*</span></label>
+        <input required type="text" value={data.city || ''} placeholder="Enter city or town" onChange={set('city')} style={inputCss} onFocus={fo} onBlur={bl} />
+      </div>
+
+      {/* Pin Code */}
+      <div>
+        <label style={labelCss}>Pin Code<span style={req}>*</span></label>
+        <input required type="text" value={data.pincode || ''} placeholder="6-digit pincode" onChange={set('pincode')} style={inputCss} onFocus={fo} onBlur={bl} />
+      </div>
     </div>
   );
 }
@@ -198,7 +225,7 @@ function StepBar({ step }) {
 }
 
 // ─── Main Component ───────────────────────────────────────────
-const EMPTY_PERSON = { name: '', phone: '', email: '', dob: '', pan: '', aadhar: '' };
+const EMPTY_PERSON = { name: '', phone: '', email: '', dob: '', occupation: '', address: '', pincode: '', city: '' };
 
 export default function ClientForm() {
   const navigate = useNavigate();
@@ -212,8 +239,22 @@ export default function ClientForm() {
 
   const loanStyle = LOAN_TYPES.find(l => l.label === loanType);
 
-  // Initialize doc slots when entering step 3
+  // Initialize doc slots when entering step 3 — validate all fields first
+  const REQUIRED_FIELDS = ['name', 'phone', 'email', 'dob', 'occupation', 'address', 'city', 'pincode'];
+
   const goToDocs = () => {
+    const missing = REQUIRED_FIELDS.filter(f => !applicant[f]?.trim());
+    if (missing.length > 0) {
+      alert(`Please fill in all required fields for the Applicant:\n\u2022 ${missing.map(f => f.charAt(0).toUpperCase() + f.slice(1)).join('\n\u2022 ')}`);
+      return;
+    }
+    if (hasCoApplicant) {
+      const coMissing = REQUIRED_FIELDS.filter(f => !coApplicant[f]?.trim());
+      if (coMissing.length > 0) {
+        alert(`Please fill in all required fields for the Co-Applicant:\n\u2022 ${coMissing.map(f => f.charAt(0).toUpperCase() + f.slice(1)).join('\n\u2022 ')}`);
+        return;
+      }
+    }
     const init = {};
     (LOAN_DOCS[loanType] || []).forEach(sec => { init[sec] = [{ file: null, displayName: '' }]; });
     setDocs(init);
@@ -257,7 +298,7 @@ export default function ClientForm() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f4f7fa', padding: '2rem 1rem' }}>
+    <div style={{ minHeight: '100vh', background: '#f4f7fa', padding: '1.5rem 1rem' }}>
       <div style={{ maxWidth: '860px', margin: '0 auto' }}>
 
         {/* Header */}
@@ -273,7 +314,7 @@ export default function ClientForm() {
           <div style={{ background: 'white', borderRadius: '20px', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
             <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1f2937', marginBottom: '0.4rem' }}>Select Loan Type</h2>
             <p style={{ color: '#6b7280', fontSize: '0.85rem', marginBottom: '1.5rem' }}>Choose the product the client is applying for.</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.75rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.75rem' }} className="client-form-loan-grid">
               {LOAN_TYPES.map(({ label, icon, color, bg }) => {
                 const sel = loanType === label;
                 return (
@@ -351,13 +392,12 @@ export default function ClientForm() {
             </div>
 
             {/* Nav */}
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }} className="client-form-nav">
               <button onClick={() => setStep(1)} className="btn" style={{ borderRadius: '12px', background: 'white', border: '1.5px solid #e5e7eb', color: '#374151' }}>← Back</button>
               <button
-                disabled={!applicant.name || !applicant.phone}
                 onClick={goToDocs}
                 className="btn btn-primary"
-                style={{ borderRadius: '12px', opacity: applicant.name && applicant.phone ? 1 : 0.45, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                style={{ borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 Next: Documents <ChevronRight size={16} />
               </button>
             </div>

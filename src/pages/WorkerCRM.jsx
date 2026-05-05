@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { saveSubmission, generateUID, getLoggedInUser, SALES_PERSONS } from '../store/db';
-import { Home, Building, User, Briefcase, Landmark, Car, CreditCard, Shield, Send, CheckCircle2 } from 'lucide-react';
+import { Home, Building, User, Briefcase, Landmark, Car, CreditCard, Shield, Send, CheckCircle2, ArrowLeftRight } from 'lucide-react';
 
 const REQUIREMENTS_DATA = {
-  "Home Loan": { sub: ["Purchase", "Construction", "Land Purchase", "BT + Top-up"], icon: Home, color: "#3b82f6" },
-  "Mortgage Loan": { sub: ["Residential Building", "Commercial Building", "Loan Mortgage", "BT + Top-up"], icon: Building, color: "#8b5cf6" },
-  "Personal Loan": { sub: ["Salaried", "BT + Top-up"], icon: User, color: "#10b981" },
-  "Business Loan (Secured)": { sub: ["Term Loan, OD,CC", "BT + Top-up"], icon: Briefcase, color: "#f59e0b" },
-  "Business Loan (Unsecured)": { sub: ["Self Employed", "BT + Top-up"], icon: Briefcase, color: "#ea580c" },
-  "Agri Loan": { sub: ["Purchase", "Term Loan, OD,CC", "BT + Top-up"], icon: Landmark, color: "#65a30d" },
-  "Vehicle Loan (Commercial)": { sub: ["New Purchase", "Used Purchase", "Refinance", "BT + Top-up"], icon: Car, color: "#64748b" },
-  "Vehicle Loan (Individual)": { sub: ["New Purchase", "Used Purchase", "Refinance", "BT + Top-up"], icon: Car, color: "#94a3b8" },
-  "Credit Card": { sub: [], icon: CreditCard, color: "#06b6d4" },
-  "Insurance": { sub: ["General", "Health", "Life"], icon: Shield, color: "#ec4899" }
+  "Home Loan": { sub: ["Purchase", "Construction", "Land Purchase", "BT + Top-up"], icon: Home, color: "#3b82f6", empTypes: ["Salaried", "Self Employed"] },
+  "Mortgage Loan": { sub: ["Residential Building", "Commercial Building", "Loan Mortgage", "BT + Top-up"], icon: Building, color: "#8b5cf6", empTypes: ["Salaried", "Self Employed"] },
+  "Personal Loan": { sub: ["Salaried", "BT + Top-up"], icon: User, color: "#10b981", empTypes: ["Salaried"] },
+  "Business Loan (Secured)": { sub: ["Term Loans", "Working Capital", "Equipment Finance/Machinery Loan", "Overdraft Facility", "BT + Topup"], icon: Briefcase, color: "#f59e0b", empTypes: ["Salaried", "Self Employed"] },
+  "Business Loan (Unsecured)": { sub: ["Term Loans", "Overdraft Facility", "BT + Topup"], icon: Briefcase, color: "#ea580c", empTypes: ["Salaried", "Self Employed"] },
+  "Agri Loan": { sub: ["Purchase", "Term Loan, OD,CC", "BT + Top-up"], icon: Landmark, color: "#65a30d", empTypes: ["Salaried", "Self Employed"] },
+  "Vehicle Loan (Commercial)": { sub: ["New Purchase", "Used Purchase", "Refinance", "BT + Top-up"], icon: Car, color: "#64748b", empTypes: ["Salaried", "Self Employed"] },
+  "Vehicle Loan (Individual)": { sub: ["New Purchase", "Used Purchase", "Refinance", "BT + Top-up"], icon: Car, color: "#94a3b8", empTypes: ["Salaried", "Self Employed"] },
+  "BT Topup": { sub: ["Personal Loan BT+Topup", "Business Loan BT+Topup", "Home Loan BT+Topup", "Mortgage BT+Topup", "Vehicle Loan BT+Topup"], icon: ArrowLeftRight, color: "#7c3aed", empTypes: ["Salaried", "Self Employed"] },
+  "Credit Card": { sub: [], icon: CreditCard, color: "#06b6d4", empTypes: ["Salaried", "Self Employed"] },
+  "Insurance": { sub: ["General", "Health", "Life"], icon: Shield, color: "#ec4899", empTypes: ["Salaried", "Self Employed"] }
 };
 
 const REQUIREMENT_KEYS = Object.keys(REQUIREMENTS_DATA);
@@ -41,9 +42,12 @@ export default function WorkerCRM() {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+    const empTypes = REQUIREMENTS_DATA[tab].empTypes || ["Salaried", "Self Employed"];
     setFormData(prev => ({
       ...prev,
-      subRequirement: REQUIREMENTS_DATA[tab].sub[0] || ''
+      subRequirement: REQUIREMENTS_DATA[tab].sub[0] || '',
+      // Reset employment type to first valid option for this loan type
+      employmentType: empTypes.includes(prev.employmentType) ? prev.employmentType : empTypes[0]
     }));
   };
 
@@ -86,19 +90,19 @@ export default function WorkerCRM() {
         navigate('/crm');
       }, 1500);
       
-      // Reset form
-      setFormData({
+      // Reset form — keep salesPerson and status as last selected
+      setFormData(prev => ({
         clientName: '',
         dateOfApproach: new Date().toISOString().slice(0, 10),
         mobileNumber: '',
         mailId: '',
-        employmentType: 'Salaried',
+        employmentType: REQUIREMENTS_DATA[activeTab].empTypes[0] || 'Salaried',
         subRequirement: REQUIREMENTS_DATA[activeTab].sub[0] || '',
-        salesPerson: SALES_PERSONS[0],
-        status: 'New',
+        salesPerson: prev.salesPerson,   // keep last selected
+        status: prev.status,             // keep last selected
         remark: '',
         followUpDate: ''
-      });
+      }));
     }, 600);
   };
 
@@ -304,8 +308,9 @@ export default function WorkerCRM() {
                     className="form-control"
                     style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', appearance: 'auto' }}
                   >
-                    <option value="Salaried">Salaried</option>
-                    <option value="Self Employed">Self Employed</option>
+                    {(REQUIREMENTS_DATA[activeTab].empTypes || ["Salaried", "Self Employed"]).map(et => (
+                      <option key={et} value={et}>{et}</option>
+                    ))}
                   </select>
                 </div>
 

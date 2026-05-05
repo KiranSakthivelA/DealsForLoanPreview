@@ -2,22 +2,23 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Home, Building, User, Briefcase, Landmark, Car, CreditCard, Shield,
-  UploadCloud, CheckCircle2, Plus, X, Send, Users, ArrowLeft
+  UploadCloud, CheckCircle2, Plus, X, Send, Users, ArrowLeft, ArrowLeftRight
 } from 'lucide-react';
 import { saveOnboarding } from '../store/db';
 
 // ─── Loan types ───────────────────────────────────────────────
 const LOAN_TYPES = [
-  { label: 'Home Loan',                 icon: Home,       color: '#3b82f6' },
-  { label: 'Mortgage Loan',             icon: Building,   color: '#8b5cf6' },
-  { label: 'Personal Loan',            icon: User,       color: '#10b981' },
-  { label: 'Business Loan (Secured)',  icon: Briefcase,  color: '#f59e0b' },
-  { label: 'Business Loan (Unsecured)',icon: Briefcase,  color: '#ea580c' },
-  { label: 'Agri Loan',                icon: Landmark,   color: '#65a30d' },
-  { label: 'Vehicle Loan (Commercial)',icon: Car,        color: '#64748b' },
-  { label: 'Vehicle Loan (Individual)',icon: Car,        color: '#94a3b8' },
-  { label: 'Credit Card',              icon: CreditCard, color: '#06b6d4' },
-  { label: 'Insurance',               icon: Shield,     color: '#ec4899' },
+  { label: 'Home Loan',                 icon: Home,            color: '#3b82f6' },
+  { label: 'Mortgage Loan',             icon: Building,        color: '#8b5cf6' },
+  { label: 'Personal Loan',            icon: User,            color: '#10b981' },
+  { label: 'Business Loan (Secured)',  icon: Briefcase,       color: '#f59e0b' },
+  { label: 'Business Loan (Unsecured)',icon: Briefcase,       color: '#ea580c' },
+  { label: 'Agri Loan',                icon: Landmark,        color: '#65a30d' },
+  { label: 'Vehicle Loan (Commercial)',icon: Car,             color: '#64748b' },
+  { label: 'Vehicle Loan (Individual)',icon: Car,             color: '#94a3b8' },
+  { label: 'BT Topup',                 icon: ArrowLeftRight,  color: '#7c3aed' },
+  { label: 'Credit Card',              icon: CreditCard,      color: '#06b6d4' },
+  { label: 'Insurance',               icon: Shield,          color: '#ec4899' },
 ];
 
 const LOAN_DOCS = {
@@ -29,6 +30,7 @@ const LOAN_DOCS = {
   'Agri Loan':                 ['ID Proof', 'Address Proof', 'Photo', 'Income Proof', 'Land Documents', 'Property Documents', 'Other Documents'],
   'Vehicle Loan (Commercial)': ['ID Proof', 'Address Proof', 'Photo', 'Income Proof', 'Bank Statement', 'Vehicle Quotation', 'Other Documents'],
   'Vehicle Loan (Individual)': ['ID Proof', 'Address Proof', 'Photo', 'Income Proof', 'Bank Statement', 'Vehicle Quotation', 'Other Documents'],
+  'BT Topup':                  ['ID Proof', 'Address Proof', 'Photo', 'Income Proof', 'Bank Statement', 'Existing Loan Statement', 'Sanction Letter', 'Other Documents'],
   'Credit Card':               ['ID Proof', 'Address Proof', 'Photo', 'Income Proof', 'Bank Statement', 'Other Documents'],
   'Insurance':                 ['ID Proof', 'Address Proof', 'Photo', 'Other Documents'],
 };
@@ -47,7 +49,7 @@ const initDocs = (loanType) => {
   return d;
 };
 
-const EMPTY = { name: '', dob: '', phone: '', email: '', pan: '', aadhar: '' };
+const EMPTY = { name: '', dob: '', phone: '', email: '', occupation: '', address: '', pincode: '', city: '' };
 
 // ─── File Slot ────────────────────────────────────────────────
 function FileSlot({ slot, onUpload, onClear, onRemove, showRemove }) {
@@ -165,24 +167,44 @@ function PersonFields({ data, onChange, prefix = 'a' }) {
   const set = (f) => (e) => onChange({ ...data, [f]: e.target.value });
   const inp = { width: '100%', boxSizing: 'border-box', padding: '0.7rem 1rem', border: '1.5px solid #e5e7eb', borderRadius: '10px', fontSize: '0.875rem', fontFamily: 'inherit', outline: 'none', background: '#f8fafc', transition: 'all 0.2s' };
   const lbl = { display: 'block', fontSize: '0.72rem', fontWeight: 700, color: '#6b7280', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' };
+  const req = { color: '#ef4444', marginLeft: '2px' };
   const fo = e => { e.target.style.borderColor = '#f39e1e'; e.target.style.background = '#fff'; };
   const bl = e => { e.target.style.borderColor = '#e5e7eb'; e.target.style.background = '#f8fafc'; };
-  const fields = [
-    { f: 'name',   l: 'Full Name *',   t: 'text',  ph: 'e.g. Ravi Kumar' },
-    { f: 'dob',    l: 'Date of Birth', t: 'date',  ph: '' },
-    { f: 'phone',  l: 'Mobile *',      t: 'tel',   ph: '10-digit number' },
-    { f: 'email',  l: 'Email',         t: 'email', ph: 'name@example.com' },
-    { f: 'pan',    l: 'PAN Number',    t: 'text',  ph: 'ABCDE1234F' },
-    { f: 'aadhar', l: 'Aadhar Number', t: 'text',  ph: '12-digit number' },
+
+  const textFields = [
+    { f: 'name',       l: 'Full Name',   t: 'text',  ph: 'e.g. Ravi Kumar' },
+    { f: 'dob',        l: 'Date of Birth', t: 'date', ph: '' },
+    { f: 'phone',      l: 'Mobile',      t: 'tel',   ph: '10-digit number' },
+    { f: 'email',      l: 'Email',       t: 'email', ph: 'name@example.com' },
+    { f: 'occupation', l: 'Occupation',  t: 'text',  ph: 'e.g. Business / Service' },
   ];
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '1rem' }}>
-      {fields.map(({ f, l, t, ph }) => (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '1rem' }} className="onboarding-person-grid">
+      {textFields.map(({ f, l, t, ph }) => (
         <div key={`${prefix}-${f}`}>
-          <label style={lbl}>{l}</label>
-          <input type={t} value={data[f]} placeholder={ph} onChange={set(f)} style={inp} onFocus={fo} onBlur={bl} />
+          <label style={lbl}>{l}<span style={req}>*</span></label>
+          <input required type={t} value={data[f] || ''} placeholder={ph} onChange={set(f)} style={inp} onFocus={fo} onBlur={bl} />
         </div>
       ))}
+
+      {/* Address — full width */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <label style={lbl}>Address<span style={req}>*</span></label>
+        <input required type="text" value={data.address || ''} placeholder="Door No, Street, Area" onChange={set('address')} style={inp} onFocus={fo} onBlur={bl} />
+      </div>
+
+      {/* City */}
+      <div>
+        <label style={lbl}>City / Town<span style={req}>*</span></label>
+        <input required type="text" value={data.city || ''} placeholder="Enter city or town" onChange={set('city')} style={inp} onFocus={fo} onBlur={bl} />
+      </div>
+
+      {/* Pin Code */}
+      <div>
+        <label style={lbl}>Pin Code<span style={req}>*</span></label>
+        <input required type="text" value={data.pincode || ''} placeholder="6-digit pincode" onChange={set('pincode')} style={inp} onFocus={fo} onBlur={bl} />
+      </div>
     </div>
   );
 }
@@ -272,6 +294,23 @@ export default function ClientOnboarding() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Validate all mandatory applicant fields
+    const requiredFields = ['name', 'dob', 'phone', 'email', 'occupation', 'address', 'city', 'pincode'];
+    const missing = requiredFields.filter(f => !applicant[f]?.trim());
+    if (missing.length > 0) {
+      alert(`Please fill in all required fields for the Applicant:\n• ${missing.map(f => f.charAt(0).toUpperCase() + f.slice(1)).join('\n• ')}`);
+      return;
+    }
+    // Validate co-applicant if added
+    if (hasCoApp) {
+      const coMissing = requiredFields.filter(f => !coApp[f]?.trim());
+      if (coMissing.length > 0) {
+        alert(`Please fill in all required fields for the Co-Applicant:\n• ${coMissing.map(f => f.charAt(0).toUpperCase() + f.slice(1)).join('\n• ')}`);
+        return;
+      }
+    }
+
     // Build storable doc data including base64 for admin file viewing/download
     const docMeta = {};
     Object.entries(docs).forEach(([sec, slots]) => {
@@ -340,10 +379,17 @@ export default function ClientOnboarding() {
 
       </div>
 
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }} className="onboarding-body">
 
-        {/* Loan type sidebar — locked for client share links, switchable for staff */}
-        <aside style={{ width: '210px', minWidth: '210px', background: 'white', borderRight: '1px solid #e5e7eb', padding: '0.875rem 0.625rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', overflowY: 'auto', flexShrink: 0 }}>
+      {/* Loan type sidebar — locked for client share links, switchable for staff */}
+        <aside style={{
+          width: '210px', minWidth: '210px', background: 'white',
+          borderRight: '1px solid #e5e7eb',
+          padding: '0.875rem 0.625rem',
+          display: 'flex', flexDirection: 'column', gap: '0.25rem',
+          overflowY: 'auto', flexShrink: 0,
+          /* Mobile: horizontal scroll strip */
+        }} className="onboarding-sidebar">
           <div style={{ fontSize: '0.62rem', fontWeight: 800, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0.25rem 0.625rem', marginBottom: '0.25rem' }}>Loan Type</div>
           {(refToken ? LOAN_TYPES.filter(l => l.label === loanType) : LOAN_TYPES).map(({ label, icon: Icon, color }) => {
             const active = loanType === label;
@@ -365,7 +411,7 @@ export default function ClientOnboarding() {
         </aside>
 
         {/* Form */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: '1.25rem' }}>
+        <main style={{ flex: 1, overflowY: 'auto', padding: '1.25rem' }} className="onboarding-main">
           <form onSubmit={handleSubmit}>
 
             {/* Header */}
@@ -416,7 +462,7 @@ export default function ClientOnboarding() {
             {/* Document Upload */}
             <div style={{ background: 'white', borderRadius: '14px', padding: '1.375rem', marginBottom: '1rem', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
               <div style={secTitle}>Document Upload</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }} className="onboarding-docs-grid">
                 {docSections.map(section => (
                   <DocSection
                     key={section}
@@ -433,7 +479,7 @@ export default function ClientOnboarding() {
             </div>
 
             {/* Submit */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', paddingBottom: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', paddingBottom: '2rem' }} className="onboarding-submit-row">
               <button type="submit" className="btn btn-primary" style={{
                 borderRadius: '12px', padding: '0.875rem 2.5rem', fontSize: '0.92rem', fontWeight: 700,
                 display: 'flex', alignItems: 'center', gap: '0.625rem',
