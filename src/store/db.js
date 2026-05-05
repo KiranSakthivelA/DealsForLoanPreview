@@ -7,7 +7,7 @@ const AUTH_KEY = 'dfl_auth_user';
 
 // ---------- CRM Users (1 Owner + 10 Employees) ----------------
 export const MOCK_USERS = [
-  { id: 'u0', name: 'Admin Owner', email: 'owner@deals.com', role: 'owner', password: 'password123' },
+  { id: 'u0', name: 'Admin Owner', email: 'owner@dealsforloan.in', role: 'owner', password: 'password123' },
   { id: 'm1', name: 'Madurai Manager', email: 'manager.madurai@dealsforloan.in', role: 'manager', password: 'password123' },
   { id: 'm2', name: 'Theni Manager', email: 'manager.theni@dealsforloan.in', role: 'manager', password: 'password123' },
   { id: 'm3', name: 'Cumbum Manager', email: 'manager.cumbum@dealsforloan.in', role: 'manager', password: 'password123' }
@@ -15,20 +15,16 @@ export const MOCK_USERS = [
 ];
 
 export const LEAD_STATUSES = [
-  "New", "Interested", "Converted", "Not Closed"
+  "New", "Interested", "Converted", "Not Converted"
 ];
 
 export const SALES_PERSONS = [
-  "Arun Kumar",
-  "Balaji M",
-  "Dinesh Karthik",
-  "Ganesh R",
-  "Karthikeyan S",
-  "Manoj Prabhu",
-  "Naveen Raj",
-  "Pradeep Kumar",
-  "Rajesh Kannan",
-  "Suresh Babu"
+  "Sakthivel s",
+  "Sethu arun kumar m",
+  "Arun R",
+  "Karthik",
+  "Raja",
+  "Sriram"
 ];
 
 // ---------- Auth Helpers ------------------------------------
@@ -63,7 +59,7 @@ export const getLoggedInUser = () => {
 };
 
 export const getAllEmployees = () => {
-  return MOCK_USERS.filter(u => u.role === 'employee');
+  return MOCK_USERS.filter(u => u.role === 'manager');
 };
 
 // ---------- helpers -----------------------------------------
@@ -141,15 +137,20 @@ export function saveSubmission(data) {
   if (existing > -1) {
     all[existing] = { ...all[existing], ...data, updatedAt: new Date().toISOString() };
   } else {
-    // New submission: randomly assign to an employee if no owner specified
+    // New submission: randomly assign to a manager if no owner specified
     const employees = getAllEmployees();
     const randomEmployee = employees[Math.floor(Math.random() * employees.length)];
 
+    // If a remark was provided at lead creation, seed it as first meeting note
+    const initialNotes = data.remark
+      ? [{ date: new Date().toISOString(), note: `Initial Remark: ${data.remark}`, isWhatsApp: false }]
+      : [];
+
     all.unshift({
       ...data,
-      status: 'New',
+      status: data.status || 'New',
       assignedTo: data.assignedTo || (randomEmployee ? randomEmployee.id : 'Admin'),
-      meetingNotes: [],
+      meetingNotes: initialNotes,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
@@ -159,12 +160,13 @@ export function saveSubmission(data) {
   return data;
 }
 
-export function updateLeadStatus(uid, newStatus, assignedTo) {
+export function updateLeadStatus(uid, newStatus, assignedTo, followUpDate) {
   const all = getAllSubmissions();
   const idx = all.findIndex((s) => s.uid === uid);
   if (idx > -1) {
     if (newStatus) all[idx].status = newStatus;
     if (assignedTo) all[idx].assignedTo = assignedTo;
+    if (followUpDate !== undefined) all[idx].followUpDate = followUpDate;
     all[idx].updatedAt = new Date().toISOString();
     localStorage.setItem(DB_KEY, JSON.stringify(all));
     syncToCloud(all);

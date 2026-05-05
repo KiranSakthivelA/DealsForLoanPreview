@@ -133,7 +133,7 @@ export default function AdminDashboard({ user }) {
 
 
   // Top employees logic (For owner view)
-  const employeeStats = MOCK_USERS.filter(u => u.role === 'employee').map(emp => {
+  const employeeStats = MOCK_USERS.filter(u => u.role === 'manager').map(emp => {
     const empLeads = submissions.filter(s => s.assignedTo === emp.id);
     return {
       name: emp.name,
@@ -158,11 +158,21 @@ export default function AdminDashboard({ user }) {
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
               You have <strong>{pendingLeadsList.length}</strong> active leads that require follow-ups or status updates. Please review them today to ensure quick conversion!
             </p>
-            <div style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
+            <div style={{ maxHeight: '240px', overflowY: 'auto', marginBottom: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
               {pendingLeadsList.slice(0, 5).map(lead => (
                 <div key={lead.uid} style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-color)', fontSize: '0.9rem' }}>
-                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{lead.fullName}</span> 
-                  <span style={{ color: 'var(--text-muted)' }}> • {lead.status}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.25rem' }}>
+                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{lead.fullName}</span>
+                    <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.6rem', borderRadius: '99px', backgroundColor: lead.status === 'New' ? '#e0f2fe' : '#fef3c7', color: lead.status === 'New' ? '#0369a1' : '#b45309', fontWeight: 600 }}>{lead.status}</span>
+                  </div>
+                  {lead.followUpDate && (
+                    <div style={{ marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#dc2626', fontSize: '0.78rem', fontWeight: 600 }}>
+                      <Calendar size={12} /> Follow-up: {new Date(lead.followUpDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </div>
+                  )}
+                  {!lead.followUpDate && (
+                    <div style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>No follow-up date set</div>
+                  )}
                 </div>
               ))}
               {pendingLeadsList.length > 5 && (
@@ -342,7 +352,7 @@ export default function AdminDashboard({ user }) {
                         'New': { bg: '#e0f2fe', text: '#0369a1', border: '#bae6fd' },
                         'Interested': { bg: '#fef3c7', text: '#b45309', border: '#fde68a' },
                         'Converted': { bg: '#d1fae5', text: '#047857', border: '#a7f3d0' },
-                        'Not Closed': { bg: '#fee2e2', text: '#b91c1c', border: '#fecaca' }
+                        'Not Converted': { bg: '#fee2e2', text: '#b91c1c', border: '#fecaca' }
                       };
                       const colorScheme = statusColors[sub.status] || { bg: '#fff7ed', text: '#ea580c', border: '#ffedd5' };
 
@@ -463,8 +473,8 @@ export default function AdminDashboard({ user }) {
                     onChange={(e) => handleAssignEmployee(selectedLead.uid, e.target.value)}
                     style={{ height: '36px', fontSize: '0.85rem' }}
                   >
-                    <option value="" disabled>Select Employee</option>
-                    {MOCK_USERS.filter(u => u.role === 'employee').map(emp => (
+                    <option value="" disabled>— Select Manager —</option>
+                    {MOCK_USERS.filter(u => u.role === 'manager').map(emp => (
                       <option key={emp.id} value={emp.id}>{emp.name}</option>
                     ))}
                   </select>
@@ -514,54 +524,87 @@ export default function AdminDashboard({ user }) {
               </div>
             </div>
 
-            {/* Daily Updates & Next Follow-Up */}
+            {/* Activity Log & Follow-Up */}
             <div style={{ marginBottom: '1.5rem' }}>
               <h4 style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Calendar size={16} /> Daily Updates
+                <Calendar size={16} /> Activity Log
               </h4>
-              <div style={{ backgroundColor: '#fff', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '0.75rem', maxHeight: '140px', overflowY: 'auto', marginBottom: '0.75rem' }}>
+
+              {/* Notes list - newest first */}
+              <div style={{ backgroundColor: '#fff', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '0.75rem', maxHeight: '160px', overflowY: 'auto', marginBottom: '0.75rem' }}>
                 {(!selectedLead.meetingNotes || selectedLead.meetingNotes.length === 0) ? (
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center' }}>No updates logged yet.</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center' }}>No activity logged yet.</div>
                 ) : (
-                  selectedLead.meetingNotes.map((note, idx) => (
+                  [...selectedLead.meetingNotes].reverse().map((note, idx) => (
                     <div key={idx} style={{ fontSize: '0.8rem', paddingBottom: '0.5rem', marginBottom: '0.5rem', borderBottom: '1px solid #f1f5f9' }}>
                       <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', marginBottom: '0.2rem' }}>
-                        {new Date(note.date).toLocaleString()} {note.isWhatsApp && <span style={{ color: '#22c55e', fontWeight: 600 }}>(WhatsApp)</span>}
+                        {new Date(note.date).toLocaleString('en-IN')}
+                        {note.isWhatsApp && <span style={{ color: '#22c55e', fontWeight: 600 }}> (WhatsApp)</span>}
                       </div>
                       <div style={{ color: 'var(--text-primary)' }}>{note.note}</div>
                     </div>
                   ))
                 )}
               </div>
-              <form onSubmit={handleAddNote} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <input 
-                  type="text" 
-                  value={noteInput} 
-                  onChange={(e) => setNoteInput(e.target.value)} 
-                  placeholder="Add an update or remarks..." 
-                  className="form-control" 
-                  style={{ fontSize: '0.85rem', flex: 1 }}
-                />
-                <button type="submit" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>Add</button>
-              </form>
 
-              {/* Next Follow Up Date */}
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>Next Follow Up Date</label>
+              {/* Combined update form */}
+              <div style={{ backgroundColor: '#f8fafc', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '0.875rem', display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+                <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>Log Update</div>
                 <input
-                  type="date"
-                  defaultValue={selectedLead.followUpDate || ''}
-                  min={new Date().toISOString().slice(0, 10)}
-                  onChange={(e) => {
-                    import('../store/db').then(({ updateLeadStatus }) => {
-                      const all = JSON.parse(localStorage.getItem('dfl_submissions') || '[]');
-                      const idx = all.findIndex(s => s.uid === selectedLead.uid);
-                      if (idx > -1) { all[idx].followUpDate = e.target.value; localStorage.setItem('dfl_submissions', JSON.stringify(all)); }
-                    });
-                  }}
+                  type="text"
+                  value={noteInput}
+                  onChange={(e) => setNoteInput(e.target.value)}
+                  placeholder="Add remark or update..."
                   className="form-control"
-                  style={{ fontSize: '0.85rem', height: '36px' }}
+                  style={{ fontSize: '0.85rem' }}
                 />
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                  <div style={{ flex: 1, minWidth: '140px' }}>
+                    <label style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.2rem' }}>Next Follow-up Date</label>
+                    <input
+                      type="date"
+                      key={selectedLead.uid}
+                      defaultValue={selectedLead.followUpDate || ''}
+                      id={`followup-${selectedLead.uid}`}
+                      className="form-control"
+                      style={{ fontSize: '0.85rem', height: '36px' }}
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      const dateInput = document.getElementById(`followup-${selectedLead.uid}`);
+                      const newDate = dateInput?.value || '';
+                      if (!noteInput.trim() && !newDate) return;
+                      if (noteInput.trim()) addMeetingNote(selectedLead.uid, noteInput, false);
+                      if (newDate) {
+                        updateLeadStatus(selectedLead.uid, null, null, newDate);
+                        addMeetingNote(selectedLead.uid, `Follow-up scheduled: ${new Date(newDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`, false);
+                      }
+                      setNoteInput('');
+                      loadData();
+                      setSelectedLead(getAllSubmissions().find(s => s.uid === selectedLead.uid));
+                    }}
+                    className="btn btn-primary"
+                    style={{ padding: '0.5rem 1rem', fontSize: '0.82rem', flexShrink: 0 }}
+                  >
+                    Save
+                  </button>
+                </div>
+
+                {/* Mark follow-up done */}
+                {selectedLead.followUpDate && (
+                  <button
+                    onClick={() => {
+                      addMeetingNote(selectedLead.uid, `✅ Follow-up completed (was due: ${new Date(selectedLead.followUpDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })})`, false);
+                      updateLeadStatus(selectedLead.uid, null, null, '');
+                      loadData();
+                      setSelectedLead(getAllSubmissions().find(s => s.uid === selectedLead.uid));
+                    }}
+                    style={{ width: '100%', background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '0.5rem', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
+                  >
+                    <CheckCircle2 size={14} /> Mark Follow-up Done
+                  </button>
+                )}
               </div>
             </div>
 

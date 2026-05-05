@@ -354,7 +354,7 @@ export default function WorkerCRM() {
                     <option value="New">New</option>
                     <option value="Interested">Interested</option>
                     <option value="Converted">Converted</option>
-                    <option value="Not Closed">Not Closed</option>
+                    <option value="Not Converted">Not Converted</option>
                   </select>
                 </div>
 
