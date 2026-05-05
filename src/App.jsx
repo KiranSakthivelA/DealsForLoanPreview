@@ -10,7 +10,9 @@ import Login from './pages/Login';
 import WorkerCRM from './pages/WorkerCRM';
 import CalendarView from './pages/CalendarView';
 import Footer from './components/Footer';
-import { Menu, LogOut, LayoutDashboard, UserPlus, CalendarDays } from 'lucide-react';
+import ClientOnboarding from './pages/ClientOnboarding';
+import OnboardedPage from './pages/OnboardedPage';
+import { Menu, LogOut, LayoutDashboard, UserPlus, CalendarDays, ClipboardList } from 'lucide-react';
 import { getLoggedInUser, logoutUser } from './store/db';
 
 // ─────────────────────────────────────────────
@@ -23,9 +25,10 @@ function Sidebar({ currentPath, onNav, isOpen, onClose }) {
   };
 
   const navItems = [
-    { path: '/crm',      icon: <LayoutDashboard size={18} />, label: 'Lead Details' },
-    { path: '/worker-crm', icon: <UserPlus size={18} />,        label: 'Add Lead'    },
-    { path: '/calendar',   icon: <CalendarDays size={18} />,    label: 'Calendar'    },
+    { path: '/crm',           icon: <LayoutDashboard size={18} />, label: 'Lead Details'       },
+    { path: '/worker-crm',    icon: <UserPlus size={18} />,        label: 'Add Lead'            },
+    { path: '/calendar',      icon: <CalendarDays size={18} />,    label: 'Calendar'            },
+    { path: '/crm/onboarded', icon: <ClipboardList size={18} />,   label: 'Onboarded Clients'  },
   ];
 
   const user = getLoggedInUser();
@@ -212,9 +215,10 @@ function DashboardShell() {
 
         {/* Page content — conditional render based on URL */}
         <main style={{ flex: 1 }}>
-          {currentPath === '/crm'      && <AdminDashboard user={user} />}
-          {currentPath === '/worker-crm' && <WorkerCRM />}
-          {currentPath === '/calendar'   && <CalendarView />}
+          {currentPath === '/crm'           && <AdminDashboard user={user} />}
+          {currentPath === '/crm/onboarded' && <OnboardedPage user={user} />}
+          {currentPath === '/worker-crm'    && <WorkerCRM />}
+          {currentPath === '/calendar'      && <CalendarView />}
         </main>
       </div>
     </div>
@@ -250,10 +254,14 @@ export default function App() {
         <Route path="/calculator" element={<PublicLayout><Calculator /></PublicLayout>} />
         <Route path="/apply" element={<PublicLayout><ClientForm /></PublicLayout>} />
 
-        {/* Dashboard – all three pages go through DashboardShell */}
-        <Route path="/crm"      element={<DashboardShell />} />
-        <Route path="/worker-crm" element={<DashboardShell />} />
-        <Route path="/calendar"   element={<DashboardShell />} />
+        {/* Standalone pages – no navbar/footer */}
+        <Route path="/onboarding" element={<ClientOnboarding />} />
+
+        {/* Dashboard – all pages go through DashboardShell */}
+        <Route path="/crm"           element={<DashboardShell />} />
+        <Route path="/crm/onboarded" element={<DashboardShell />} />
+        <Route path="/worker-crm"    element={<DashboardShell />} />
+        <Route path="/calendar"      element={<DashboardShell />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

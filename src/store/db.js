@@ -2,8 +2,49 @@
 //  Deals For Loan – localStorage "DB" + Auth + CRM
 // ============================================================
 
-const DB_KEY = 'dfl_submissions';
+const DB_KEY  = 'dfl_submissions';
 const AUTH_KEY = 'dfl_auth_user';
+const ONB_KEY  = 'dfl_onboardings';
+
+// ---------- Onboarding CRUD -----------------------------------
+export function getAllOnboardings() {
+  try { return JSON.parse(localStorage.getItem(ONB_KEY) || '[]'); } catch { return []; }
+}
+
+export function saveOnboarding(data) {
+  const all = getAllOnboardings();
+  const entry = { ...data, id: `ONB-${Date.now()}`, submittedAt: new Date().toISOString(), grantedTo: [] };
+  all.unshift(entry);
+  localStorage.setItem(ONB_KEY, JSON.stringify(all));
+  return entry;
+}
+
+export function grantOnboardingAccess(onbId, managerId) {
+  const all = getAllOnboardings();
+  const idx = all.findIndex(o => o.id === onbId);
+  if (idx === -1) return;
+  if (!all[idx].grantedTo) all[idx].grantedTo = [];
+  if (!all[idx].grantedTo.includes(managerId)) all[idx].grantedTo.push(managerId);
+  localStorage.setItem(ONB_KEY, JSON.stringify(all));
+}
+
+export function revokeOnboardingAccess(onbId, managerId) {
+  const all = getAllOnboardings();
+  const idx = all.findIndex(o => o.id === onbId);
+  if (idx === -1) return;
+  all[idx].grantedTo = (all[idx].grantedTo || []).filter(id => id !== managerId);
+  localStorage.setItem(ONB_KEY, JSON.stringify(all));
+}
+
+export function updateOnboardingStatus(onbId, status) {
+  const all = getAllOnboardings();
+  const idx = all.findIndex(o => o.id === onbId);
+  if (idx === -1) return;
+  all[idx].status = status;
+  all[idx].statusUpdatedAt = new Date().toISOString();
+  localStorage.setItem(ONB_KEY, JSON.stringify(all));
+}
+
 
 // ---------- CRM Users (1 Owner + 10 Employees) ----------------
 export const MOCK_USERS = [

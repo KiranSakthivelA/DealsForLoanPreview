@@ -2,22 +2,24 @@ import { useState, useEffect } from 'react';
 import { 
   Download, Search, Trash2,
   Smartphone, Plus, FolderDown, 
-  MessageCircle, TrendingUp, Users, CheckCircle2, Calendar, ShieldAlert,
-  Phone, PhoneCall
+  MessageCircle, Users, CheckCircle2, Calendar, ShieldAlert,
+  Phone, PhoneCall, ClipboardList, ExternalLink
 } from 'lucide-react';
 import { 
   getAllSubmissions, deleteSubmission, exportToCSV, REQUIRED_DOCUMENTS, 
   MOCK_USERS, LEAD_STATUSES, updateLeadStatus, addMeetingNote,
-  getAllEstimates, fetchFromCloud
+  getAllEstimates, fetchFromCloud, getAllOnboardings,
+  grantOnboardingAccess, revokeOnboardingAccess
 } from '../store/db';
 import ClientForm from './ClientForm';
 
 import { useNavigate } from 'react-router-dom';
 
-export default function AdminDashboard({ user }) {
+export default function AdminDashboard({ user, initialTab = 'leads' }) {
   const [submissions, setSubmissions] = useState([]);
   const [estimates, setEstimates] = useState([]);
-  const [activeTab, setActiveTab] = useState('leads'); // 'leads' or 'estimates'
+  const [onboardings, setOnboardings] = useState([]);
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLead, setSelectedLead] = useState(null);
   const [noteInput, setNoteInput] = useState('');
@@ -39,6 +41,7 @@ export default function AdminDashboard({ user }) {
     // 1. Instantly load local data for fast UI
     let all = getAllSubmissions();
     const ests = getAllEstimates();
+    const onbs = getAllOnboardings();
     
     if (isOwner) {
       setSubmissions(all);
@@ -46,6 +49,7 @@ export default function AdminDashboard({ user }) {
       setSubmissions(all.filter(s => s.assignedTo === user.id));
     }
     setEstimates(ests);
+    setOnboardings(onbs);
 
     // 2. Fetch latest from Vercel DB in background and update UI
     const cloudData = await fetchFromCloud();
@@ -56,7 +60,7 @@ export default function AdminDashboard({ user }) {
       } else {
         setSubmissions(all.filter(s => s.assignedTo === user.id));
       }
-      checkAgingLeads(all); // refresh popup logic with new data
+      checkAgingLeads(all);
     }
   };
 
@@ -333,7 +337,7 @@ export default function AdminDashboard({ user }) {
         {/* Middle Column: Lead Pipeline or Estimates */}
         <div className="card" style={{ flex: '2 1 500px', marginBottom: 0, overflow: 'hidden' }}>
           <div className="card-header" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: '#fafafa', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-             <h3 style={{ color: 'var(--accent-color)', fontWeight: 700 }}>{activeTab === 'leads' ? 'Active Leads' : 'Quick Estimates'}</h3>
+             <h3 style={{ color: 'var(--accent-color)', fontWeight: 700 }}>{activeTab === 'leads' ? 'Active Leads' : activeTab === 'estimates' ? 'Quick Estimates' : 'Onboarded Clients'}</h3>
           </div>
           
           <div className="table-responsive">
@@ -617,6 +621,51 @@ export default function AdminDashboard({ user }) {
               </div>
             </div>
 
+            {/* Onboarding Actions — show for any lead */}
+            {(() => {
+              const plainParams = new URLSearchParams({
+                uid: selectedLead.uid,
+                loanType: selectedLead.loanType || selectedLead.requirement || '',
+                name: selectedLead.fullName || '',
+                phone: selectedLead.phone || '',
+                email: selectedLead.email || '',
+              });
+              // Secure share link — encode all fields into one opaque base64 token
+              const refPayload = btoa(JSON.stringify({
+                uid: selectedLead.uid,
+                loanType: selectedLead.loanType || selectedLead.requirement || '',
+                name: selectedLead.fullName || '',
+                phone: selectedLead.phone || '',
+                email: selectedLead.email || '',
+              }));
+              const shareUrl = `${window.location.origin}/onboarding?ref=${refPayload}`;
+              return (
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  {/* Fill in-house — internal nav, plain params fine */}
+                  <button
+                    className="btn"
+                    style={{ flex: 1, backgroundColor: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.8rem', padding: '0.55rem' }}
+                    onClick={() => navigate(`/onboarding?${plainParams.toString()}`)}
+                  >
+                    <ClipboardList size={14} /> Fill Form
+                  </button>
+                  {/* Copy secure shareable link */}
+                  <button
+                    className="btn"
+                    style={{ flex: 1, backgroundColor: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.8rem', padding: '0.55rem' }}
+                    onClick={() => {
+                      navigator.clipboard.writeText(shareUrl).then(() => {
+                        const btn = document.getElementById(`share-btn-${selectedLead.uid}`);
+                        if (btn) { btn.textContent = '✓ Copied!'; setTimeout(() => { btn.innerHTML = '🔗 Share Link'; }, 2000); }
+                      });
+                    }}
+                    id={`share-btn-${selectedLead.uid}`}
+                  >
+                    🔗 Share Link
+                  </button>
+                </div>
+              );
+            })()}
             {isOwner && (
               <button 
                 className="btn" 
@@ -635,6 +684,128 @@ export default function AdminDashboard({ user }) {
         )}
 
       </div>
+
+      {/* ── Onboarded Clients Tab ── */}
+      {activeTab === 'onboarded' && (
+        <div style={{ marginTop: '1.5rem' }}>
+
+          {onboardings.length === 0 ? (
+            <div className="card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+              <ClipboardList size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+              <p style={{ fontWeight: 600 }}>No clients onboarded yet.</p>
+              <p style={{ fontSize: '0.85rem' }}>Use "Fill Form" or "Share Link" from a lead to start an onboarding.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {(isOwner ? onboardings : onboardings.filter(o => (o.grantedTo || []).includes(userId))).map(onb => {
+                const managers = MOCK_USERS.filter(u => u.role === 'manager');
+                const allFiles = Object.entries(onb.documents || {}).flatMap(([sec, slots]) =>
+                  (slots || []).filter(s => s.uploaded).map(s => ({ ...s, section: sec }))
+                );
+
+                const downloadFile = (f) => {
+                  if (!f.base64) return;
+                  const a = document.createElement('a');
+                  a.href = f.base64;
+                  a.download = f.displayName || 'document';
+                  a.click();
+                };
+
+                return (
+                  <div key={onb.id} className="card" style={{ overflow: 'hidden', borderLeft: '4px solid #10b981' }}>
+                    {/* Client header */}
+                    <div style={{ padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', background: '#f8fafc', borderBottom: '1px solid var(--border-color)' }}>
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)' }}>{onb.applicant?.name || '—'}</div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                          {onb.applicant?.phone} &nbsp;·&nbsp; {onb.loanType} &nbsp;·&nbsp;
+                          {new Date(onb.submittedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </div>
+                        {onb.coApplicant?.name && (
+                          <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.15rem' }}>Co-Applicant: <strong>{onb.coApplicant.name}</strong></div>
+                        )}
+                      </div>
+                      <span style={{ fontSize: '0.75rem', background: '#d1fae5', color: '#065f46', padding: '0.25rem 0.75rem', borderRadius: '99px', fontWeight: 700, alignSelf: 'flex-start' }}>
+                        {allFiles.length} file{allFiles.length !== 1 ? 's' : ''} uploaded
+                      </span>
+                    </div>
+
+                    {/* Documents */}
+                    <div style={{ padding: '1rem 1.25rem' }}>
+                      {Object.entries(onb.documents || {}).map(([section, slots]) => {
+                        const uploaded = (slots || []).filter(s => s.uploaded);
+                        if (uploaded.length === 0) return null;
+                        return (
+                          <div key={section} style={{ marginBottom: '0.875rem' }}>
+                            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.4rem' }}>{section}</div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                              {uploaded.map((f, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: f.base64 ? '#f0fdf4' : '#f8fafc', border: '1px solid', borderColor: f.base64 ? '#bbf7d0' : '#e5e7eb', borderRadius: '8px', padding: '0.4rem 0.75rem', fontSize: '0.78rem' }}>
+                                  <CheckCircle2 size={13} color={f.base64 ? '#10b981' : '#9ca3af'} />
+                                  <span style={{ color: 'var(--text-primary)', fontWeight: 500, maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.displayName || 'File'}</span>
+                                  {isOwner && f.base64 && (
+                                    <button
+                                      onClick={() => downloadFile(f)}
+                                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2563eb', fontSize: '0.72rem', fontWeight: 700, padding: '0 0.2rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
+                                    >
+                                      ↓ Download
+                                    </button>
+                                  )}
+                                  {/* Manager view: download only if granted */}
+                                  {!isOwner && f.base64 && (onb.grantedTo || []).includes(userId) && (
+                                    <button
+                                      onClick={() => downloadFile(f)}
+                                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2563eb', fontSize: '0.72rem', fontWeight: 700, padding: '0 0.2rem' }}
+                                    >
+                                      ↓ Download
+                                    </button>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Access control — admin only */}
+                    {isOwner && (
+                      <div style={{ padding: '0.875rem 1.25rem', borderTop: '1px solid var(--border-color)', background: '#fafafa' }}>
+                        <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.625rem' }}>Branch / Manager Access</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                          {managers.map(mgr => {
+                            const granted = (onb.grantedTo || []).includes(mgr.id);
+                            return (
+                              <button
+                                key={mgr.id}
+                                onClick={() => {
+                                  if (granted) revokeOnboardingAccess(onb.id, mgr.id);
+                                  else grantOnboardingAccess(onb.id, mgr.id);
+                                  setOnboardings(getAllOnboardings());
+                                }}
+                                style={{
+                                  padding: '0.35rem 0.875rem', borderRadius: '99px', cursor: 'pointer',
+                                  fontSize: '0.78rem', fontWeight: 700, border: '1.5px solid',
+                                  borderColor: granted ? '#10b981' : '#e5e7eb',
+                                  background: granted ? '#f0fdf4' : 'white',
+                                  color: granted ? '#15803d' : '#6b7280',
+                                  transition: 'all 0.15s',
+                                }}
+                              >
+                                {granted ? '✓ ' : ''}{mgr.name}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
