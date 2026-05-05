@@ -158,28 +158,37 @@ export default function AdminDashboard({ user }) {
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
               You have <strong>{pendingLeadsList.length}</strong> active leads that require follow-ups or status updates. Please review them today to ensure quick conversion!
             </p>
-            <div style={{ maxHeight: '240px', overflowY: 'auto', marginBottom: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
-              {pendingLeadsList.slice(0, 5).map(lead => (
-                <div key={lead.uid} style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-color)', fontSize: '0.9rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.25rem' }}>
-                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{lead.fullName}</span>
-                    <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.6rem', borderRadius: '99px', backgroundColor: lead.status === 'New' ? '#e0f2fe' : '#fef3c7', color: lead.status === 'New' ? '#0369a1' : '#b45309', fontWeight: 600 }}>{lead.status}</span>
-                  </div>
-                  {lead.followUpDate && (
-                    <div style={{ marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#dc2626', fontSize: '0.78rem', fontWeight: 600 }}>
-                      <Calendar size={12} /> Follow-up: {new Date(lead.followUpDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+            <div style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
+              {[...pendingLeadsList]
+                .sort((a, b) => {
+                  if (a.followUpDate && b.followUpDate) return new Date(a.followUpDate) - new Date(b.followUpDate);
+                  if (a.followUpDate) return -1; // has date → higher priority
+                  if (b.followUpDate) return 1;
+                  return 0;
+                })
+                .map((lead, idx) => {
+                  const isOverdue = lead.followUpDate && new Date(lead.followUpDate) < new Date();
+                  const dateColor = isOverdue ? '#dc2626' : '#b45309';
+                  return (
+                    <div key={lead.uid} style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-color)', fontSize: '0.9rem', backgroundColor: idx === 0 ? '#fff7ed' : 'white' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                          {idx === 0 && <span style={{ fontSize: '0.65rem', fontWeight: 800, backgroundColor: '#f39e1e', color: 'white', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>FIRST</span>}
+                          <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{lead.fullName}</span>
+                        </div>
+                        <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.6rem', borderRadius: '99px', backgroundColor: lead.status === 'New' ? '#e0f2fe' : '#fef3c7', color: lead.status === 'New' ? '#0369a1' : '#b45309', fontWeight: 600 }}>{lead.status}</span>
+                      </div>
+                      {lead.followUpDate ? (
+                        <div style={{ marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: dateColor, fontSize: '0.78rem', fontWeight: 600 }}>
+                          <Calendar size={12} /> {isOverdue ? '⚠️ Overdue — ' : 'Follow-up: '}{new Date(lead.followUpDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </div>
+                      ) : (
+                        <div style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>No follow-up date set</div>
+                      )}
                     </div>
-                  )}
-                  {!lead.followUpDate && (
-                    <div style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>No follow-up date set</div>
-                  )}
-                </div>
-              ))}
-              {pendingLeadsList.length > 5 && (
-                <div style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', backgroundColor: '#f8fafc' }}>
-                  + {pendingLeadsList.length - 5} more pending leads
-                </div>
-              )}
+                  );
+                })
+              }
             </div>
             <button 
               onClick={() => setShowPendingPopup(false)}
