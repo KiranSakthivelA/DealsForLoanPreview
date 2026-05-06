@@ -56,6 +56,53 @@ export function closeDeal(onbId, dealAmount, dealFollowUpDate) {
   localStorage.setItem(ONB_KEY, JSON.stringify(all));
 }
 
+export function updateOnboardingCoApplicant(onbId, coApplicant, coDocuments) {
+  const all = getAllOnboardings();
+  const idx = all.findIndex(o => o.id === onbId);
+  if (idx === -1) return;
+  all[idx].coApplicant = coApplicant;
+  if (coDocuments) all[idx].coDocuments = coDocuments;
+  localStorage.setItem(ONB_KEY, JSON.stringify(all));
+}
+
+/**
+ * Update (replace) or delete a single document slot for an onboarding record.
+ * @param {string} onbId - The ONB-xxx ID
+ * @param {'documents'|'coDocuments'} docKey - Which document set to mutate
+ * @param {string} section - e.g. 'ID Proof'
+ * @param {number} slotIndex - Index inside the section's slots array
+ * @param {object|null} newSlot - Replacement slot data, or null to delete the slot
+ */
+export function updateOnboardingDoc(onbId, docKey, section, slotIndex, newSlot) {
+  const all = getAllOnboardings();
+  const idx = all.findIndex(o => o.id === onbId);
+  if (idx === -1) return;
+  if (!all[idx][docKey] || !all[idx][docKey][section]) return;
+  if (newSlot === null) {
+    const updated = all[idx][docKey][section].filter((_, i) => i !== slotIndex);
+    all[idx][docKey][section] = updated.length > 0
+      ? updated
+      : [{ displayName: '', uploaded: false, base64: null, fileType: null }];
+  } else {
+    all[idx][docKey][section][slotIndex] = newSlot;
+  }
+  all[idx].updatedAt = new Date().toISOString();
+  localStorage.setItem(ONB_KEY, JSON.stringify(all));
+}
+
+/**
+ * Add a new empty document slot to a specific section.
+ */
+export function addDocumentSlot(onbId, docKey, section) {
+  const all = getAllOnboardings();
+  const idx = all.findIndex(o => o.id === onbId);
+  if (idx === -1) return;
+  if (!all[idx][docKey]) all[idx][docKey] = {};
+  if (!all[idx][docKey][section]) all[idx][docKey][section] = [];
+  all[idx][docKey][section].push({ displayName: '', uploaded: false, base64: null, fileType: null });
+  all[idx].updatedAt = new Date().toISOString();
+  localStorage.setItem(ONB_KEY, JSON.stringify(all));
+}
 
 // ---------- CRM Users (1 Owner + 10 Employees) ----------------
 export const MOCK_USERS = [
@@ -122,15 +169,33 @@ export function generateUID() {
 }
 
 // ---------- Cloud Sync Helpers ------------------------------
-export const syncToCloud = async (leads) => {
+export const syncToCloud = async (data) => {
   try {
     await fetch('/api/sync', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ leads })
+      body: JSON.stringify({ leads: data })
     });
   } catch (e) {
-    console.error('Cloud sync error (ignoring for local dev):', e);
+    console.error('Cloud sync error:', e);
+  }
+};
+
+// Placeholder for Google Apps Script Webhook URL
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoO4-oWGgg6z4GzWvbgMyhgySt2yBLP0iSyXVrAsEPc9IHQ-wijU9fV7BL1tuRJLM/exec';
+
+export const syncToSpreadsheet = async (lead) => {
+  // Only sync if status is New, Interested, or Converted
+  if (!['New', 'Interested', 'Converted'].includes(lead.status)) return;
+  try {
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(lead)
+    });
+  } catch (e) {
+    console.error('Spreadsheet sync error:', e);
   }
 };
 
@@ -209,6 +274,7 @@ export function saveSubmission(data) {
   }
   localStorage.setItem(DB_KEY, JSON.stringify(all));
   syncToCloud(all);
+  syncToSpreadsheet(existing > -1 ? all[existing] : all[0]);
   return data;
 }
 
@@ -222,6 +288,7 @@ export function updateLeadStatus(uid, newStatus, assignedTo, followUpDate) {
     all[idx].updatedAt = new Date().toISOString();
     localStorage.setItem(DB_KEY, JSON.stringify(all));
     syncToCloud(all);
+    syncToSpreadsheet(all[idx]);
   }
 }
 

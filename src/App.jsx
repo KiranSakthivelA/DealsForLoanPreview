@@ -12,7 +12,8 @@ import CalendarView from './pages/CalendarView';
 import Footer from './components/Footer';
 import ClientOnboarding from './pages/ClientOnboarding';
 import OnboardedPage from './pages/OnboardedPage';
-import { Menu, LogOut, LayoutDashboard, UserPlus, CalendarDays, ClipboardList } from 'lucide-react';
+import ClientHistory from './pages/ClientHistory';
+import { Menu, LogOut, LayoutDashboard, UserPlus, CalendarDays, ClipboardList, History } from 'lucide-react';
 import { getLoggedInUser, logoutUser } from './store/db';
 
 // ─────────────────────────────────────────────
@@ -24,7 +25,7 @@ function Sidebar({ currentPath, onNav, isOpen, onClose }) {
     window.location.replace('/crm');
   };
 
-  const navItems = [
+  const baseItems = [
     { path: '/crm',           icon: <LayoutDashboard size={18} />, label: 'Lead Details'       },
     { path: '/worker-crm',    icon: <UserPlus size={18} />,        label: 'Add Lead'            },
     { path: '/calendar',      icon: <CalendarDays size={18} />,    label: 'Calendar'            },
@@ -32,6 +33,10 @@ function Sidebar({ currentPath, onNav, isOpen, onClose }) {
   ];
 
   const user = getLoggedInUser();
+  const navItems = user?.role === 'owner'
+    ? [...baseItems, { path: '/crm/history', icon: <History size={18} />, label: 'Client History' }]
+    : baseItems;
+
 
   return (
     <>
@@ -219,6 +224,7 @@ function DashboardShell() {
           {currentPath === '/crm/onboarded' && <OnboardedPage user={user} />}
           {currentPath === '/worker-crm'    && <WorkerCRM />}
           {currentPath === '/calendar'      && <CalendarView />}
+          {currentPath === '/crm/history'   && <ClientHistory user={user} />}
         </main>
       </div>
     </div>
@@ -260,6 +266,7 @@ export default function App() {
         {/* Dashboard – all pages go through DashboardShell */}
         <Route path="/crm"           element={<DashboardShell />} />
         <Route path="/crm/onboarded" element={<DashboardShell />} />
+        <Route path="/crm/history"   element={<DashboardShell />} />
         <Route path="/worker-crm"    element={<DashboardShell />} />
         <Route path="/calendar"      element={<DashboardShell />} />
 

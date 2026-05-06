@@ -18,7 +18,7 @@ const LOAN_TYPES = [
 ];
 
 // ─── Document sections per loan type ─────────────────────────
-const LOAN_DOCS = {
+export const LOAN_DOCS = {
   'Home Loan':                  ['ID Proof', 'Address Proof', 'Photo', 'Income Proof', 'Bank Statement', 'Property Documents', 'Other Documents'],
   'Mortgage Loan':              ['ID Proof', 'Address Proof', 'Photo', 'Income Proof', 'Bank Statement', 'Property Documents', 'Other Documents'],
   'Personal Loan':              ['ID Proof', 'Address Proof', 'Photo', 'Income Proof', 'Bank Statement', 'Other Documents'],

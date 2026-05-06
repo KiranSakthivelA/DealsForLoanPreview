@@ -241,21 +241,27 @@ export default function ClientOnboarding() {
   const [applicant, setApplicant] = useState({ ...EMPTY, name: urlName, phone: urlPhone, email: urlEmail });
   const [coApp, setCoApp]         = useState({ ...EMPTY });
   const [docs, setDocs]           = useState(() => initDocs(urlLoanType));
+  const [coDocs, setCoDocs]       = useState(() => initDocs(urlLoanType));
   const [submitted, setSubmitted] = useState(false);
 
   const loanMeta = LOAN_TYPES.find(l => l.label === loanType) || LOAN_TYPES[0];
   const LoanIcon = loanMeta.icon;
 
-  // Re-init docs when loan type changes
+  // Re-init docs (both applicant and co-applicant) when loan type changes
   useEffect(() => {
     setDocs(initDocs(loanType));
+    setCoDocs(initDocs(loanType));
   }, [loanType]);
 
+  // Helpers that work on whichever doc set is active (applicant or co-applicant)
+  const activeDocs   = tab === 'coapplicant' ? coDocs   : docs;
+  const setActiveDocs = tab === 'coapplicant' ? setCoDocs : setDocs;
+
   const handleUpload = (section, idx, file) => {
-    const clientName = applicant.name;
+    const clientName = tab === 'coapplicant' ? coApp.name : applicant.name;
     const reader = new FileReader();
     reader.onload = () => {
-      setDocs(prev => {
+      setActiveDocs(prev => {
         const arr = [...(prev[section] || [])];
         arr[idx] = {
           file,
@@ -270,14 +276,14 @@ export default function ClientOnboarding() {
   };
 
   const addSlot = (section) => {
-    setDocs(prev => ({
+    setActiveDocs(prev => ({
       ...prev,
       [section]: [...(prev[section] || []), { file: null, displayName: '' }],
     }));
   };
 
   const clearSlot = (section, idx) => {
-    setDocs(prev => {
+    setActiveDocs(prev => {
       const arr = [...(prev[section] || [])];
       arr[idx] = { file: null, displayName: '' };
       return { ...prev, [section]: arr };
@@ -285,7 +291,7 @@ export default function ClientOnboarding() {
   };
 
   const removeSlot = (section, idx) => {
-    setDocs(prev => {
+    setActiveDocs(prev => {
       const arr = [...(prev[section] || [])];
       arr.splice(idx, 1);
       return { ...prev, [section]: arr };
@@ -312,21 +318,25 @@ export default function ClientOnboarding() {
     }
 
     // Build storable doc data including base64 for admin file viewing/download
-    const docMeta = {};
-    Object.entries(docs).forEach(([sec, slots]) => {
-      docMeta[sec] = slots.map(s => ({
-        displayName: s.displayName,
-        uploaded: !!s.file,
-        base64: s.base64 || null,
-        fileType: s.fileType || null,
-      }));
-    });
+    const buildDocMeta = (source) => {
+      const meta = {};
+      Object.entries(source).forEach(([sec, slots]) => {
+        meta[sec] = slots.map(s => ({
+          displayName: s.displayName,
+          uploaded: !!s.file,
+          base64: s.base64 || null,
+          fileType: s.fileType || null,
+        }));
+      });
+      return meta;
+    };
     saveOnboarding({
       leadUid: urlLeadUid,
       loanType,
       applicant,
       coApplicant: hasCoApp ? coApp : null,
-      documents: docMeta,
+      documents: buildDocMeta(docs),
+      coDocuments: hasCoApp ? buildDocMeta(coDocs) : null,
     });
     setSubmitted(true);
   };
@@ -345,7 +355,7 @@ export default function ClientOnboarding() {
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', flexDirection: 'column' }}>
             <button className="btn btn-primary" style={{ width: '100%', borderRadius: '12px' }}
-              onClick={() => { setSubmitted(false); setApplicant({ ...EMPTY }); setCoApp({ ...EMPTY }); setDocs(initDocs(loanType)); setTab('applicant'); }}>
+              onClick={() => { setSubmitted(false); setApplicant({ ...EMPTY }); setCoApp({ ...EMPTY }); setDocs(initDocs(loanType)); setCoDocs(initDocs(loanType)); setTab('applicant'); }}>
               Submit Another
             </button>
             {urlLeadUid && (
@@ -362,6 +372,10 @@ export default function ClientOnboarding() {
 
   const docSections = LOAN_DOCS[loanType] || [];
   const secTitle = { fontSize: '0.68rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#9ca3af', marginBottom: '1rem' };
+  // Count total uploaded files across both applicant and co-applicant docs
+  const countUploaded = (docSet) => Object.values(docSet).flatMap(s => s).filter(s => s.file).length;
+  const appDocsCount = countUploaded(docs);
+  const coDocsCount  = countUploaded(coDocs);
 
   return (
     <div style={{ minHeight: '100vh', background: '#f4f7fa', display: 'flex', flexDirection: 'column' }}>
@@ -431,19 +445,27 @@ export default function ClientOnboarding() {
               {/* Tab bar + co-applicant toggle */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.625rem', marginBottom: '1.25rem' }}>
                 <div style={{ display: 'flex', background: '#f1f5f9', borderRadius: '99px', padding: '0.2rem', gap: 0 }}>
-                  {['applicant', ...(hasCoApp ? ['coapplicant'] : [])].map(key => (
-                    <button key={key} type="button" onClick={() => setTab(key)} style={{
-                      padding: '0.4rem 0.875rem', borderRadius: '99px', border: 'none', cursor: 'pointer',
-                      fontWeight: 700, fontSize: '0.78rem', transition: 'all 0.2s',
-                      display: 'flex', alignItems: 'center', gap: '0.3rem',
-                      background: tab === key ? 'white' : 'transparent',
-                      color: tab === key ? '#1f2937' : '#9ca3af',
-                      boxShadow: tab === key ? '0 1px 6px rgba(0,0,0,0.08)' : 'none',
-                    }}>
-                      {key === 'applicant' ? <User size={12} /> : <Users size={12} />}
-                      {key === 'applicant' ? 'Applicant' : 'Co-Applicant'}
-                    </button>
-                  ))}
+                  {['applicant', ...(hasCoApp ? ['coapplicant'] : [])].map(key => {
+                    const docsCount = key === 'applicant' ? appDocsCount : coDocsCount;
+                    return (
+                      <button key={key} type="button" onClick={() => setTab(key)} style={{
+                        padding: '0.4rem 0.875rem', borderRadius: '99px', border: 'none', cursor: 'pointer',
+                        fontWeight: 700, fontSize: '0.78rem', transition: 'all 0.2s',
+                        display: 'flex', alignItems: 'center', gap: '0.3rem',
+                        background: tab === key ? 'white' : 'transparent',
+                        color: tab === key ? '#1f2937' : '#9ca3af',
+                        boxShadow: tab === key ? '0 1px 6px rgba(0,0,0,0.08)' : 'none',
+                      }}>
+                        {key === 'applicant' ? <User size={12} /> : <Users size={12} />}
+                        {key === 'applicant' ? 'Applicant' : 'Co-Applicant'}
+                        {docsCount > 0 && (
+                          <span style={{ background: '#f59e0b', color: 'white', fontSize: '0.6rem', fontWeight: 800, borderRadius: '99px', padding: '0 0.3rem', lineHeight: '1.4' }}>
+                            {docsCount}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
                 <button type="button" onClick={() => { setHasCoApp(v => !v); setTab(hasCoApp ? 'applicant' : 'coapplicant'); }}
                   style={{ padding: '0.35rem 0.875rem', borderRadius: '99px', cursor: 'pointer', fontWeight: 700, fontSize: '0.76rem', border: `1.5px solid ${hasCoApp ? '#ef4444' : loanMeta.color}`, background: hasCoApp ? '#fff1f2' : `${loanMeta.color}12`, color: hasCoApp ? '#ef4444' : loanMeta.color }}>
@@ -459,16 +481,25 @@ export default function ClientOnboarding() {
               />
             </div>
 
-            {/* Document Upload */}
+            {/* Document Upload — switches between applicant and co-applicant based on active tab */}
             <div style={{ background: 'white', borderRadius: '14px', padding: '1.375rem', marginBottom: '1rem', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
-              <div style={secTitle}>Document Upload</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                <div style={secTitle}>
+                  {tab === 'coapplicant' ? 'Co-Applicant Document Upload' : 'Document Upload'}
+                </div>
+                {tab === 'coapplicant' && (
+                  <span style={{ fontSize: '0.7rem', background: '#fef3c7', color: '#b45309', padding: '0.2rem 0.6rem', borderRadius: '99px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <Users size={11} /> Co-Applicant Docs
+                  </span>
+                )}
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }} className="onboarding-docs-grid">
                 {docSections.map(section => (
                   <DocSection
-                    key={section}
+                    key={`${tab}-${section}`}
                     label={section}
-                    slots={docs[section] || [{ file: null, displayName: '' }]}
-                    clientName={applicant.name}
+                    slots={activeDocs[section] || [{ file: null, displayName: '' }]}
+                    clientName={tab === 'coapplicant' ? coApp.name : applicant.name}
                     onUpload={(idx, file) => handleUpload(section, idx, file)}
                     onClear={(idx) => clearSlot(section, idx)}
                     onAdd={() => addSlot(section)}

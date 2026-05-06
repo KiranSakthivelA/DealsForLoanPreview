@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { 
   Download, Search, Trash2,
-  Smartphone, Plus, FolderDown, 
+  Smartphone, Plus,
   MessageCircle, Users, CheckCircle2, Calendar, ShieldAlert,
-  Phone, PhoneCall, ClipboardList, ExternalLink
+  Phone, PhoneCall, ClipboardList, ExternalLink, ChevronDown
 } from 'lucide-react';
 import { 
   getAllSubmissions, deleteSubmission, exportToCSV, REQUIRED_DOCUMENTS, 
@@ -30,6 +30,7 @@ export default function AdminDashboard({ user, initialTab = 'leads' }) {
 
   const [showPendingPopup, setShowPendingPopup] = useState(false);
   const [pendingLeadsList, setPendingLeadsList] = useState([]);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -121,12 +122,60 @@ export default function AdminDashboard({ user, initialTab = 'leads' }) {
     alert("WhatsApp message simulated & logged successfully!");
   };
 
-  const handleExport = () => {
-    if (submissions.length === 0) {
-      alert("No data to export");
-      return;
-    }
+  const handleExportCSV = () => {
+    if (submissions.length === 0) { alert("No data to export"); return; }
     exportToCSV(submissions);
+    setShowExportMenu(false);
+  };
+
+  const handleExportPDF = () => {
+    if (submissions.length === 0) { alert("No data to export"); return; }
+    const html = `
+      <html>
+        <head>
+          <title>Leads_Export_${new Date().toISOString().split('T')[0]}</title>
+          <style>
+            body { font-family: sans-serif; padding: 20px; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+            th { background: #f4f4f4; }
+          </style>
+        </head>
+        <body>
+          <h2 style="margin-top:0;">Deals For Loan - Leads Export</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th><th>Client Name</th><th>Phone</th><th>Loan Type</th><th>Amount</th><th>Status</th><th>Assigned To</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${submissions.map(s => `
+                <tr>
+                  <td>${s.createdAt ? new Date(s.createdAt).toLocaleDateString('en-IN') : ''}</td>
+                  <td>${s.fullName || ''}</td>
+                  <td>${s.phone || ''}</td>
+                  <td>${s.loanType || ''}</td>
+                  <td>${s.loanAmount || ''}</td>
+                  <td>${s.status || 'New'}</td>
+                  <td>${s.assignedTo || 'Unassigned'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <script>setTimeout(() => { window.print(); }, 500);</script>
+        </body>
+      </html>
+    `;
+    const tab = window.open('', '_blank');
+    if (tab) {
+      tab.document.open();
+      tab.document.write(html);
+      tab.document.close();
+    } else {
+      alert("Please allow popups to export as PDF.");
+    }
+    setShowExportMenu(false);
   };
 
   const filteredSubmissions = submissions.filter(s => 
@@ -246,9 +295,25 @@ export default function AdminDashboard({ user, initialTab = 'leads' }) {
             />
           </div>
           {isOwner && (
-            <button className="btn" style={{ backgroundColor: 'white', color: 'var(--accent-color)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)', borderRadius: '99px', padding: '0.5rem 0.875rem', fontSize: '0.8rem' }} onClick={handleExport}>
-               <Download size={14} /> <span className="mobile-hide">Export</span>
-            </button>
+            <div style={{ position: 'relative' }}>
+              <button 
+                className="btn" 
+                style={{ backgroundColor: 'white', color: 'var(--accent-color)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)', borderRadius: '99px', padding: '0.5rem 0.875rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }} 
+                onClick={() => setShowExportMenu(!showExportMenu)}
+              >
+                 <Download size={14} /> <span className="mobile-hide">Export</span> <ChevronDown size={12} style={{ marginLeft: '0.2rem' }} />
+              </button>
+              {showExportMenu && (
+                <div style={{ position: 'absolute', top: '110%', right: 0, backgroundColor: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: '0.5rem', zIndex: 100, minWidth: '160px', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                  <button onClick={handleExportCSV} style={{ padding: '0.6rem 1rem', background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                    Excel (CSV)
+                  </button>
+                  <button onClick={handleExportPDF} style={{ padding: '0.6rem 1rem', background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                    PDF Document
+                  </button>
+                </div>
+              )}
+            </div>
           )}
           <button className="btn" style={{ backgroundColor: 'var(--accent-color)', color: 'white', borderRadius: '99px', boxShadow: '0 4px 15px rgba(45, 46, 137, 0.2)', padding: '0.5rem 0.875rem', fontSize: '0.8rem' }} onClick={() => navigate('/worker-crm')}>
             <Plus size={16} /> New Lead
@@ -346,75 +411,112 @@ export default function AdminDashboard({ user, initialTab = 'leads' }) {
              <h3 style={{ color: 'var(--accent-color)', fontWeight: 700 }}>{activeTab === 'leads' ? 'Active Leads' : activeTab === 'estimates' ? 'Quick Estimates' : 'Onboarded Clients'}</h3>
           </div>
           
-          <div className="table-responsive">
+          <div style={{ overflowX: 'auto' }}>
             {activeTab === 'leads' ? (
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Applicant</th>
-                    <th>Loan Type</th>
-                    {isOwner && <th>Assigned To</th>}
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {submissions.length === 0 ? (
-                    <tr>
-                      <td colSpan={isOwner ? "4" : "3"} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-                        No applications found.
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredSubmissions.map((sub) => {
-                      const emp = MOCK_USERS.find(u => u.id === sub.assignedTo);
-                      const statusColors = {
-                        'New': { bg: '#e0f2fe', text: '#0369a1', border: '#bae6fd' },
-                        'Interested': { bg: '#fef3c7', text: '#b45309', border: '#fde68a' },
-                        'Converted': { bg: '#d1fae5', text: '#047857', border: '#a7f3d0' },
-                        'Not Converted': { bg: '#fee2e2', text: '#b91c1c', border: '#fecaca' }
-                      };
-                      const colorScheme = statusColors[sub.status] || { bg: '#fff7ed', text: '#ea580c', border: '#ffedd5' };
-
+              (() => {
+                const STATUS_COLS = [
+                  { key: 'New',           label: 'New',           color: '#0369a1', bg: '#e0f2fe', border: '#bae6fd', dot: '#3b82f6' },
+                  { key: 'Interested',    label: 'Interested',    color: '#b45309', bg: '#fef3c7', border: '#fde68a', dot: '#f59e0b' },
+                  { key: 'Converted',     label: 'Converted',     color: '#047857', bg: '#d1fae5', border: '#a7f3d0', dot: '#10b981' },
+                  { key: 'Not Converted', label: 'Not Converted', color: '#b91c1c', bg: '#fee2e2', border: '#fecaca', dot: '#ef4444' },
+                ];
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(190px, 1fr))', gap: '0.75rem', padding: '1rem' }}>
+                    {STATUS_COLS.map(col => {
+                      const colLeads = filteredSubmissions.filter(s => (s.status || 'New') === col.key);
                       return (
-                        <tr 
-                          key={sub.uid}
-                          style={{ 
-                            cursor: 'pointer', 
-                            backgroundColor: selectedLead?.uid === sub.uid ? 'var(--primary-lighter)' : 'transparent',
-                            borderLeft: selectedLead?.uid === sub.uid ? '3px solid var(--primary-color)' : '3px solid transparent'
-                          }}
-                          onClick={() => setSelectedLead(sub)}
-                        >
-                          <td>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                              <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#64748b' }}>
-                                {(sub.fullName || 'U')[0].toUpperCase()}
-                              </div>
-                              <div>
-                                <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{sub.fullName}</div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{sub.phone}</div>
-                              </div>
+                        <div key={col.key} style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                          {/* Column header */}
+                          <div style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            padding: '0.55rem 0.75rem',
+                            borderRadius: '10px 10px 0 0',
+                            background: col.bg,
+                            border: `1.5px solid ${col.border}`,
+                            borderBottom: 'none',
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: col.dot, flexShrink: 0 }} />
+                              <span style={{ fontWeight: 800, fontSize: '0.75rem', color: col.color, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{col.label}</span>
                             </div>
-                          </td>
-                          <td style={{ fontSize: '0.85rem', fontWeight: 500 }}>{sub.loanType}</td>
-                          {isOwner && (
-                            <td>
-                              <span style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', backgroundColor: '#f3f4f6', borderRadius: '4px', color: 'var(--text-secondary)' }}>
-                                {emp ? emp.name : 'Unassigned'}
-                              </span>
-                            </td>
-                          )}
-                          <td>
-                            <span className="badge" style={{ backgroundColor: colorScheme.bg, color: colorScheme.text, border: `1px solid ${colorScheme.border}` }}>
-                              {sub.status || 'New'}
+                            <span style={{ background: col.dot, color: 'white', fontSize: '0.65rem', fontWeight: 800, borderRadius: '99px', padding: '0.1rem 0.45rem', lineHeight: '1.5' }}>
+                              {colLeads.length}
                             </span>
-                          </td>
-                        </tr>
+                          </div>
+
+                          {/* Cards */}
+                          <div style={{
+                            display: 'flex', flexDirection: 'column', gap: '0.5rem',
+                            padding: '0.625rem',
+                            background: '#f8fafc',
+                            border: `1.5px solid ${col.border}`,
+                            borderTop: 'none',
+                            borderRadius: '0 0 10px 10px',
+                            minHeight: '120px',
+                            maxHeight: '420px',
+                            overflowY: 'auto',
+                          }}>
+                            {colLeads.length === 0 ? (
+                              <div style={{ textAlign: 'center', padding: '2rem 0.5rem', color: '#9ca3af', fontSize: '0.75rem' }}>
+                                No leads
+                              </div>
+                            ) : (
+                              colLeads.map(sub => {
+                                const emp = MOCK_USERS.find(u => u.id === sub.assignedTo);
+                                const isSelected = selectedLead?.uid === sub.uid;
+                                return (
+                                  <div
+                                    key={sub.uid}
+                                    onClick={() => setSelectedLead(sub)}
+                                    style={{
+                                      background: isSelected ? col.bg : 'white',
+                                      border: `1.5px solid ${isSelected ? col.dot : '#e5e7eb'}`,
+                                      borderRadius: '9px',
+                                      padding: '0.625rem 0.75rem',
+                                      cursor: 'pointer',
+                                      transition: 'all 0.15s',
+                                      boxShadow: isSelected ? `0 0 0 2px ${col.dot}40` : '0 1px 3px rgba(0,0,0,0.04)',
+                                    }}
+                                    onMouseEnter={e => { if (!isSelected) e.currentTarget.style.borderColor = col.dot; }}
+                                    onMouseLeave={e => { if (!isSelected) e.currentTarget.style.borderColor = '#e5e7eb'; }}
+                                  >
+                                    {/* Avatar + name */}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: col.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.75rem', color: col.color, flexShrink: 0 }}>
+                                        {(sub.fullName || 'U')[0].toUpperCase()}
+                                      </div>
+                                      <div style={{ minWidth: 0 }}>
+                                        <div style={{ fontWeight: 700, fontSize: '0.82rem', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sub.fullName}</div>
+                                        <div style={{ fontSize: '0.7rem', color: '#9ca3af' }}>{sub.phone}</div>
+                                      </div>
+                                    </div>
+                                    {/* Loan type */}
+                                    <div style={{ fontSize: '0.7rem', color: '#6b7280', fontWeight: 600, marginBottom: isOwner ? '0.3rem' : 0 }}>
+                                      {sub.loanType || sub.requirement}
+                                    </div>
+                                    {/* Assigned to (owner only) */}
+                                    {isOwner && emp && (
+                                      <div style={{ fontSize: '0.65rem', background: '#f3f4f6', color: '#6b7280', borderRadius: '4px', padding: '0.1rem 0.4rem', display: 'inline-block', fontWeight: 600 }}>
+                                        {emp.name}
+                                      </div>
+                                    )}
+                                    {/* Follow-up date if set */}
+                                    {sub.followUpDate && (
+                                      <div style={{ fontSize: '0.65rem', color: new Date(sub.followUpDate) < new Date() ? '#dc2626' : '#b45309', marginTop: '0.25rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                                        <Calendar size={10} /> {new Date(sub.followUpDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+                        </div>
                       );
-                    })
-                  )}
-                </tbody>
-              </table>
+                    })}
+                  </div>
+                );
+              })()
             ) : (
               <table className="table">
                 <thead>
@@ -477,7 +579,7 @@ export default function AdminDashboard({ user, initialTab = 'leads' }) {
                   className="form-control" 
                   value={selectedLead.status || 'New'} 
                   onChange={(e) => handleStatusChange(selectedLead.uid, e.target.value)}
-                  style={{ height: '36px', fontSize: '0.85rem' }}
+                  style={{ padding: '0.25rem 0.5rem', height: '36px', fontSize: '0.85rem' }}
                 >
                   {LEAD_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
@@ -490,7 +592,7 @@ export default function AdminDashboard({ user, initialTab = 'leads' }) {
                     className="form-control" 
                     value={selectedLead.assignedTo || ''} 
                     onChange={(e) => handleAssignEmployee(selectedLead.uid, e.target.value)}
-                    style={{ height: '36px', fontSize: '0.85rem' }}
+                    style={{ padding: '0.25rem 0.5rem', height: '36px', fontSize: '0.85rem' }}
                   >
                     <option value="" disabled>— Select Manager —</option>
                     {MOCK_USERS.filter(u => u.role === 'manager').map(emp => (
@@ -586,7 +688,7 @@ export default function AdminDashboard({ user, initialTab = 'leads' }) {
                       defaultValue={selectedLead.followUpDate || ''}
                       id={`followup-${selectedLead.uid}`}
                       className="form-control"
-                      style={{ fontSize: '0.85rem', height: '36px' }}
+                      style={{ padding: '0.25rem 0.5rem', fontSize: '0.85rem', height: '36px' }}
                     />
                   </div>
                   <button
@@ -682,12 +784,7 @@ export default function AdminDashboard({ user, initialTab = 'leads' }) {
               </button>
             )}
           </div>
-        ) : (
-          <div style={{ flex: '1.5 1 300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 2rem', backgroundColor: 'transparent', border: '2px dashed var(--border-color)', borderRadius: '16px', color: 'var(--text-muted)' }}>
-             <FolderDown size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
-             <p style={{ textAlign: 'center', fontSize: '0.9rem' }}>Select a lead from the pipeline<br/>to update status or log meetings.</p>
-          </div>
-        )}
+        ) : null}
 
       </div>
 
