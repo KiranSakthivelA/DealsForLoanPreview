@@ -9,7 +9,7 @@ import {
   getAllSubmissions, deleteSubmission, exportToCSV, REQUIRED_DOCUMENTS, 
   MOCK_USERS, LEAD_STATUSES, updateLeadStatus, addMeetingNote,
   getAllEstimates, fetchFromCloud, getAllOnboardings,
-  grantOnboardingAccess, revokeOnboardingAccess
+  grantOnboardingAccess, revokeOnboardingAccess, syncToSpreadsheet
 } from '../store/db';
 import ClientForm from './ClientForm';
 
@@ -181,28 +181,18 @@ export default function AdminDashboard({ user, initialTab = 'leads' }) {
   const handleForceSyncSheet = async () => {
     if (!window.confirm("This will push all existing New, Interested, and Converted leads to your Google Sheet. Proceed?")) return;
     
-    // Import syncToSpreadsheet if it's not imported at the top, or just use the global scope if possible
-    // Wait, AdminDashboard doesn't import syncToSpreadsheet yet!
-    // I should import it at the top, or just do the fetch here.
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoO4-oWGgg6z4GzWvbgMyhgySt2yBLP0iSyXVrAsEPc9IHQ-wijU9fV7BL1tuRJLM/exec';
-    
     let count = 0;
     for (const s of submissions) {
       if (['New', 'Interested', 'Converted'].includes(s.status)) {
         try {
-          await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(s)
-          });
+          await syncToSpreadsheet(s);
           count++;
         } catch (e) {
           console.error(e);
         }
       }
     }
-    alert(`Successfully synced ${count} existing leads to Google Sheets!`);
+    alert(`Successfully synced ${count} leads to Google Sheets!`);
     setShowExportMenu(false);
   };
 
@@ -340,6 +330,7 @@ export default function AdminDashboard({ user, initialTab = 'leads' }) {
                     PDF Document
                   </button>
                   <div style={{ borderTop: '1px solid #e2e8f0', margin: '0.2rem 0' }}></div>
+                  <label style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', padding: '0.4rem 1rem 0', display: 'block', letterSpacing: '0.05em' }}>Spreadsheet</label>
                   <button onClick={handleForceSyncSheet} style={{ padding: '0.6rem 1rem', background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 600, color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.3rem' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f0fdf4'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                     Push All to Google Sheets
                   </button>

@@ -187,12 +187,36 @@ const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoO4-oWGgg6z
 export const syncToSpreadsheet = async (lead) => {
   // Only sync if status is New, Interested, or Converted
   if (!['New', 'Interested', 'Converted'].includes(lead.status)) return;
+  // Send a flat, labeled object so Google Sheets columns are named correctly
+  const labeled = {
+    'UID':               lead.uid               || '',
+    'Full Name':         lead.fullName           || '',
+    'Phone':             lead.phone              || '',
+    'Email':             lead.email              || '',
+    'Loan Type':         lead.loanType           || lead.requirement || '',
+    'Sub Requirement':   lead.subRequirement     || '',
+    'Employment Type':   lead.employmentType     || '',
+    'Sales Person':      lead.salesPerson        || '',
+    'Date of Approach':  lead.dateOfApproach     || '',
+    'Follow Up Date':    lead.followUpDate       || '',
+    'Status':            lead.status             || 'New',
+    'Assigned To':       lead.assignedTo         || '',
+    'Remark':            lead.remark             || '',
+    'Source':            lead.source             || '',
+    'Submitted At':      lead.createdAt          || '',
+    // Onboarding fields (populated when available)
+    'Loan Amount':       lead.loanAmount         || '',
+    'Address':           lead.address            || '',
+    'City':              lead.city               || '',
+    'State':             lead.state              || '',
+    'Pincode':           lead.pincode            || '',
+  };
   try {
     await fetch(GOOGLE_SCRIPT_URL, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(lead)
+      body: JSON.stringify(labeled)
     });
   } catch (e) {
     console.error('Spreadsheet sync error:', e);
@@ -316,17 +340,60 @@ export function deleteSubmission(uid) {
 // ---------- Spreadsheet / CSV export ------------------------
 export function exportToCSV(submissions) {
   const headers = [
-    'UID', 'Full Name', 'Date of Birth', 'Age', 'Gender',
-    'Phone', 'Email', 'Address', 'City', 'State', 'Pincode',
-    'Aadhar Number', 'PAN Number', 'Loan Type', 'Loan Amount',
-    'Status', 'Assigned To', 'Submitted At',
+    'UID',
+    'Full Name',
+    'Phone',
+    'Email',
+    'Loan Type',
+    'Sub Requirement',
+    'Employment Type',
+    'Sales Person',
+    'Date of Approach',
+    'Follow Up Date',
+    'Status',
+    'Assigned To',
+    'Remark',
+    'Source',
+    // Onboarding / detailed fields
+    'Date of Birth',
+    'Age',
+    'Gender',
+    'Address',
+    'City',
+    'State',
+    'Pincode',
+    'Aadhar Number',
+    'PAN Number',
+    'Loan Amount',
+    'Submitted At',
   ];
 
   const rows = submissions.map((s) => [
-    s.uid, s.fullName, s.dob, s.age, s.gender,
-    s.phone, s.email, s.address, s.city, s.state, s.pincode,
-    s.aadharNumber, s.panNumber, s.loanType, s.loanAmount,
-    s.status || 'Pending', s.assignedTo || 'Unassigned', s.createdAt,
+    s.uid                   || '',
+    s.fullName              || '',
+    s.phone                 || '',
+    s.email                 || '',
+    s.loanType || s.requirement || '',
+    s.subRequirement        || '',
+    s.employmentType        || '',
+    s.salesPerson           || '',
+    s.dateOfApproach        || '',
+    s.followUpDate          || '',
+    s.status                || 'New',
+    s.assignedTo            || 'Unassigned',
+    s.remark                || '',
+    s.source                || '',
+    s.dob                   || '',
+    s.age                   || '',
+    s.gender                || '',
+    s.address               || '',
+    s.city                  || '',
+    s.state                 || '',
+    s.pincode               || '',
+    s.aadharNumber          || '',
+    s.panNumber             || '',
+    s.loanAmount            || '',
+    s.createdAt             || '',
   ]);
 
   const csvContent = [headers, ...rows]
