@@ -4,17 +4,17 @@ import { Plus, Trash2, CheckCircle, ChevronRight, User, Users, FileText, UploadC
 
 // ─── Loan types (matching CRM) ───────────────────────────────
 const LOAN_TYPES = [
-  { label: 'Home Loan',                  icon: '🏠', color: '#3b82f6', bg: '#eff6ff' },
-  { label: 'Mortgage Loan',              icon: '🏢', color: '#8b5cf6', bg: '#f5f3ff' },
-  { label: 'Personal Loan',             icon: '👤', color: '#10b981', bg: '#ecfdf5' },
-  { label: 'Business Loan (Secured)',    icon: '🏭', color: '#f59e0b', bg: '#fffbeb' },
-  { label: 'Business Loan (Unsecured)', icon: '💼', color: '#ea580c', bg: '#fff7ed' },
-  { label: 'Agri Loan',                 icon: '🌾', color: '#65a30d', bg: '#f7fee7' },
-  { label: 'Vehicle Loan (Commercial)', icon: '🚛', color: '#64748b', bg: '#f8fafc' },
-  { label: 'Vehicle Loan (Individual)', icon: '🚗', color: '#94a3b8', bg: '#f8fafc' },
-  { label: 'BT Topup',                  icon: '🔄', color: '#7c3aed', bg: '#f5f3ff' },
-  { label: 'Credit Card',               icon: '💳', color: '#06b6d4', bg: '#ecfeff' },
-  { label: 'Insurance',                 icon: '🛡️', color: '#ec4899', bg: '#fdf2f8' },
+  { label: 'Home Loan',                  icon: '🏠', color: '#3b82f6', bg: '#eff6ff', sub: ["Purchase", "Construction", "Land Purchase", "BT + Top-up"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Mortgage Loan',              icon: '🏢', color: '#8b5cf6', bg: '#f5f3ff', sub: ["Residential Building", "Commercial Building", "Loan Mortgage", "BT + Top-up"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Personal Loan',             icon: '👤', color: '#10b981', bg: '#ecfdf5', sub: ["Salaried", "BT + Top-up"], empTypes: ["Salaried"] },
+  { label: 'Business Loan (Secured)',    icon: '🏭', color: '#f59e0b', bg: '#fffbeb', sub: ["Term Loans", "Working Capital", "Equipment Finance/Machinery Loan", "Overdraft Facility", "BT + Topup"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Business Loan (Unsecured)', icon: '💼', color: '#ea580c', bg: '#fff7ed', sub: ["Term Loans", "Overdraft Facility", "BT + Topup"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Agri Loan',                 icon: '🌾', color: '#65a30d', bg: '#f7fee7', sub: ["Purchase", "Term Loan, OD,CC", "BT + Top-up"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Vehicle Loan (Commercial)', icon: '🚛', color: '#64748b', bg: '#f8fafc', sub: ["New Purchase", "Used Purchase", "Refinance", "BT + Top-up"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Vehicle Loan (Individual)', icon: '🚗', color: '#94a3b8', bg: '#f8fafc', sub: ["New Purchase", "Used Purchase", "Refinance", "BT + Top-up"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'BT Topup',                  icon: '🔄', color: '#7c3aed', bg: '#f5f3ff', sub: ["Personal Loan BT+Topup", "Business Loan BT+Topup", "Home Loan BT+Topup", "Mortgage BT+Topup", "Vehicle Loan BT+Topup"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Credit Card',               icon: '💳', color: '#06b6d4', bg: '#ecfeff', sub: [], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Insurance',                 icon: '🛡️', color: '#ec4899', bg: '#fdf2f8', sub: ["General", "Health", "Life"], empTypes: ["Salaried", "Self Employed"] },
 ];
 
 // ─── Document sections per loan type ─────────────────────────
@@ -63,7 +63,7 @@ const labelCss = {
 
 // ─── Sub-components ───────────────────────────────────────────
 
-function ApplicantFields({ data, onChange }) {
+function ApplicantFields({ data, onChange, isPrimary = false, loanMeta = null }) {
   const set = (f) => (e) => onChange({ ...data, [f]: e.target.value });
   const fo = e => { e.target.style.borderColor = '#f39e1e'; e.target.style.boxShadow = '0 0 0 3px rgba(243,158,30,0.12)'; };
   const bl = e => { e.target.style.borderColor = '#e5e7eb'; e.target.style.boxShadow = 'none'; };
@@ -77,6 +77,9 @@ function ApplicantFields({ data, onChange }) {
     { f: 'occupation', label: 'Occupation',    type: 'text',  placeholder: 'e.g. Business / Service' },
   ];
 
+  const empTypes = loanMeta?.empTypes || ["Salaried", "Self Employed"];
+  const subReqs = loanMeta?.sub || [];
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
       {textFields.map(({ f, label, type, placeholder }) => (
@@ -89,6 +92,24 @@ function ApplicantFields({ data, onChange }) {
           />
         </div>
       ))}
+      
+      <div>
+        <label style={labelCss}>Employment Type<span style={req}>*</span></label>
+        <select required value={data.employmentType || ''} onChange={set('employmentType')} style={{ ...inputCss, appearance: 'auto' }} onFocus={fo} onBlur={bl}>
+          <option value="" disabled>Select Type</option>
+          {empTypes.map(et => <option key={et} value={et}>{et}</option>)}
+        </select>
+      </div>
+
+      {isPrimary && subReqs.length > 0 && (
+        <div>
+          <label style={labelCss}>Specific Requirement<span style={req}>*</span></label>
+          <select required value={data.subRequirement || ''} onChange={set('subRequirement')} style={{ ...inputCss, appearance: 'auto' }} onFocus={fo} onBlur={bl}>
+            <option value="" disabled>Select Specific Type</option>
+            {subReqs.map(sub => <option key={sub} value={sub}>{sub}</option>)}
+          </select>
+        </div>
+      )}
 
       {/* Address — full width */}
       <div style={{ gridColumn: '1 / -1' }}>
@@ -225,7 +246,7 @@ function StepBar({ step }) {
 }
 
 // ─── Main Component ───────────────────────────────────────────
-const EMPTY_PERSON = { name: '', phone: '', email: '', dob: '', occupation: '', address: '', pincode: '', city: '' };
+const EMPTY_PERSON = { name: '', phone: '', email: '', dob: '', occupation: '', address: '', pincode: '', city: '', employmentType: '', subRequirement: '' };
 
 export default function ClientForm() {
   const navigate = useNavigate();
@@ -240,10 +261,13 @@ export default function ClientForm() {
   const loanStyle = LOAN_TYPES.find(l => l.label === loanType);
 
   // Initialize doc slots when entering step 3 — validate all fields first
-  const REQUIRED_FIELDS = ['name', 'phone', 'email', 'dob', 'occupation', 'address', 'city', 'pincode'];
-
+  const REQUIRED_FIELDS = ['name', 'phone', 'email', 'dob', 'occupation', 'address', 'city', 'pincode', 'employmentType'];
+  
   const goToDocs = () => {
-    const missing = REQUIRED_FIELDS.filter(f => !applicant[f]?.trim());
+    const requiredAppFields = [...REQUIRED_FIELDS];
+    if (loanStyle?.sub?.length > 0) requiredAppFields.push('subRequirement');
+    
+    const missing = requiredAppFields.filter(f => !applicant[f]?.trim());
     if (missing.length > 0) {
       alert(`Please fill in all required fields for the Applicant:\n\u2022 ${missing.map(f => f.charAt(0).toUpperCase() + f.slice(1)).join('\n\u2022 ')}`);
       return;
@@ -360,7 +384,7 @@ export default function ClientForm() {
                   <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Primary applicant information</div>
                 </div>
               </div>
-              <ApplicantFields data={applicant} onChange={setApplicant} />
+              <ApplicantFields data={applicant} onChange={setApplicant} isPrimary={true} loanMeta={loanStyle} />
             </div>
 
             {/* Co-applicant */}
@@ -386,7 +410,7 @@ export default function ClientForm() {
               </div>
               {hasCoApplicant && (
                 <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid #f1f5f9' }}>
-                  <ApplicantFields data={coApplicant} onChange={setCoApplicant} />
+                  <ApplicantFields data={coApplicant} onChange={setCoApplicant} isPrimary={false} loanMeta={loanStyle} />
                 </div>
               )}
             </div>

@@ -169,12 +169,21 @@ export function generateUID() {
 }
 
 // ---------- Cloud Sync Helpers ------------------------------
-export const syncToCloud = async (data) => {
+export const syncToCloud = async (action, payload) => {
   try {
+    let body;
+    if (action === 'save') {
+      body = { action: 'save', lead: payload };
+    } else if (action === 'delete') {
+      body = { action: 'delete', uid: payload };
+    } else {
+      body = { leads: action }; // legacy array payload
+    }
+
     await fetch('/api/sync', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ leads: data })
+      body: JSON.stringify(body)
     });
   } catch (e) {
     console.error('Cloud sync error:', e);
@@ -301,8 +310,10 @@ export function saveSubmission(data) {
   const all = getAllSubmissions();
   const existing = all.findIndex((s) => s.uid === data.uid);
 
+  let savedLead;
   if (existing > -1) {
     all[existing] = { ...all[existing], ...data, updatedAt: new Date().toISOString() };
+    savedLead = all[existing];
   } else {
     // New submission: randomly assign to a manager if no owner specified
     const employees = getAllEmployees();
@@ -313,18 +324,19 @@ export function saveSubmission(data) {
       ? [{ date: new Date().toISOString(), note: `Initial Remark: ${data.remark}`, isWhatsApp: false }]
       : [];
 
-    all.unshift({
+    savedLead = {
       ...data,
       status: data.status || 'New',
       assignedTo: data.assignedTo || (randomEmployee ? randomEmployee.id : 'Admin'),
       meetingNotes: initialNotes,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
-    });
+    };
+    all.unshift(savedLead);
   }
   localStorage.setItem(DB_KEY, JSON.stringify(all));
-  syncToCloud(all);
-  syncToSpreadsheet(existing > -1 ? all[existing] : all[0]);
+  syncToCloud('save', savedLead);
+  syncToSpreadsheet(savedLead);
   return data;
 }
 
@@ -337,7 +349,7 @@ export function updateLeadStatus(uid, newStatus, assignedTo, followUpDate) {
     if (followUpDate !== undefined) all[idx].followUpDate = followUpDate;
     all[idx].updatedAt = new Date().toISOString();
     localStorage.setItem(DB_KEY, JSON.stringify(all));
-    syncToCloud(all);
+    syncToCloud('save', all[idx]);
     syncToSpreadsheet(all[idx]);
   }
 }
@@ -354,6 +366,7 @@ export function addMeetingNote(uid, note, isWhatsApp = false) {
     });
     all[idx].updatedAt = new Date().toISOString();
     localStorage.setItem(DB_KEY, JSON.stringify(all));
+    syncToCloud('save', all[idx]);
     syncToSpreadsheet(all[idx]); // auto-sync on every log entry
   }
 }
@@ -361,7 +374,7 @@ export function addMeetingNote(uid, note, isWhatsApp = false) {
 export function deleteSubmission(uid) {
   const all = getAllSubmissions().filter((s) => s.uid !== uid);
   localStorage.setItem(DB_KEY, JSON.stringify(all));
-  syncToCloud(all);
+  syncToCloud('delete', uid);
 }
 
 // ---------- Spreadsheet / CSV export ------------------------

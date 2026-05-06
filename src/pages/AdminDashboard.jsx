@@ -739,6 +739,8 @@ export default function AdminDashboard({ user, initialTab = 'leads' }) {
                 name: selectedLead.fullName || '',
                 phone: selectedLead.phone || '',
                 email: selectedLead.email || '',
+                employmentType: selectedLead.employmentType || '',
+                subRequirement: selectedLead.subRequirement || '',
               });
               // Secure share link — encode all fields into one opaque base64 token
               const refPayload = btoa(JSON.stringify({
@@ -747,6 +749,8 @@ export default function AdminDashboard({ user, initialTab = 'leads' }) {
                 name: selectedLead.fullName || '',
                 phone: selectedLead.phone || '',
                 email: selectedLead.email || '',
+                employmentType: selectedLead.employmentType || '',
+                subRequirement: selectedLead.subRequirement || '',
               }));
               const shareUrl = `${window.location.origin}/onboarding?ref=${refPayload}`;
               return (

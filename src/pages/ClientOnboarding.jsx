@@ -8,17 +8,17 @@ import { saveOnboarding } from '../store/db';
 
 // ─── Loan types ───────────────────────────────────────────────
 const LOAN_TYPES = [
-  { label: 'Home Loan',                 icon: Home,            color: '#3b82f6' },
-  { label: 'Mortgage Loan',             icon: Building,        color: '#8b5cf6' },
-  { label: 'Personal Loan',            icon: User,            color: '#10b981' },
-  { label: 'Business Loan (Secured)',  icon: Briefcase,       color: '#f59e0b' },
-  { label: 'Business Loan (Unsecured)',icon: Briefcase,       color: '#ea580c' },
-  { label: 'Agri Loan',                icon: Landmark,        color: '#65a30d' },
-  { label: 'Vehicle Loan (Commercial)',icon: Car,             color: '#64748b' },
-  { label: 'Vehicle Loan (Individual)',icon: Car,             color: '#94a3b8' },
-  { label: 'BT Topup',                 icon: ArrowLeftRight,  color: '#7c3aed' },
-  { label: 'Credit Card',              icon: CreditCard,      color: '#06b6d4' },
-  { label: 'Insurance',               icon: Shield,          color: '#ec4899' },
+  { label: 'Home Loan',                 icon: Home,            color: '#3b82f6', sub: ["Purchase", "Construction", "Land Purchase", "BT + Top-up"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Mortgage Loan',             icon: Building,        color: '#8b5cf6', sub: ["Residential Building", "Commercial Building", "Loan Mortgage", "BT + Top-up"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Personal Loan',            icon: User,            color: '#10b981', sub: ["Salaried", "BT + Top-up"], empTypes: ["Salaried"] },
+  { label: 'Business Loan (Secured)',  icon: Briefcase,       color: '#f59e0b', sub: ["Term Loans", "Working Capital", "Equipment Finance/Machinery Loan", "Overdraft Facility", "BT + Topup"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Business Loan (Unsecured)',icon: Briefcase,       color: '#ea580c', sub: ["Term Loans", "Overdraft Facility", "BT + Topup"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Agri Loan',                icon: Landmark,        color: '#65a30d', sub: ["Purchase", "Term Loan, OD,CC", "BT + Top-up"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Vehicle Loan (Commercial)',icon: Car,             color: '#64748b', sub: ["New Purchase", "Used Purchase", "Refinance", "BT + Top-up"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Vehicle Loan (Individual)',icon: Car,             color: '#94a3b8', sub: ["New Purchase", "Used Purchase", "Refinance", "BT + Top-up"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'BT Topup',                 icon: ArrowLeftRight,  color: '#7c3aed', sub: ["Personal Loan BT+Topup", "Business Loan BT+Topup", "Home Loan BT+Topup", "Mortgage BT+Topup", "Vehicle Loan BT+Topup"], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Credit Card',              icon: CreditCard,      color: '#06b6d4', sub: [], empTypes: ["Salaried", "Self Employed"] },
+  { label: 'Insurance',               icon: Shield,          color: '#ec4899', sub: ["General", "Health", "Life"], empTypes: ["Salaried", "Self Employed"] },
 ];
 
 const LOAN_DOCS = {
@@ -49,7 +49,7 @@ const initDocs = (loanType) => {
   return d;
 };
 
-const EMPTY = { name: '', dob: '', phone: '', email: '', occupation: '', address: '', pincode: '', city: '' };
+const EMPTY = { name: '', dob: '', phone: '', email: '', occupation: '', address: '', pincode: '', city: '', employmentType: '', subRequirement: '' };
 
 // ─── File Slot ────────────────────────────────────────────────
 function FileSlot({ slot, onUpload, onClear, onRemove, showRemove }) {
@@ -163,9 +163,9 @@ function DocSection({ label, slots, clientName, onUpload, onClear, onAdd, onRemo
 }
 
 // ─── Person Fields ────────────────────────────────────────────
-function PersonFields({ data, onChange, prefix = 'a' }) {
+function PersonFields({ data, onChange, prefix = 'a', isPrimary = false, loanMeta = null }) {
   const set = (f) => (e) => onChange({ ...data, [f]: e.target.value });
-  const inp = { width: '100%', boxSizing: 'border-box', padding: '0.7rem 1rem', border: '1.5px solid #e5e7eb', borderRadius: '10px', fontSize: '0.875rem', fontFamily: 'inherit', outline: 'none', background: '#f8fafc', transition: 'all 0.2s' };
+  const inp = { width: '100%', boxSizing: 'border-box', padding: '0.7rem 1rem', border: '1.5px solid #e5e7eb', borderRadius: '10px', fontSize: '0.875rem', fontFamily: 'inherit', outline: 'none', background: '#f8fafc', transition: 'all 0.2s', appearance: 'auto' };
   const lbl = { display: 'block', fontSize: '0.72rem', fontWeight: 700, color: '#6b7280', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' };
   const req = { color: '#ef4444', marginLeft: '2px' };
   const fo = e => { e.target.style.borderColor = '#f39e1e'; e.target.style.background = '#fff'; };
@@ -179,6 +179,9 @@ function PersonFields({ data, onChange, prefix = 'a' }) {
     { f: 'occupation', l: 'Occupation',  t: 'text',  ph: 'e.g. Business / Service' },
   ];
 
+  const empTypes = loanMeta?.empTypes || ["Salaried", "Self Employed"];
+  const subReqs = loanMeta?.sub || [];
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '1rem' }} className="onboarding-person-grid">
       {textFields.map(({ f, l, t, ph }) => (
@@ -187,6 +190,24 @@ function PersonFields({ data, onChange, prefix = 'a' }) {
           <input required type={t} value={data[f] || ''} placeholder={ph} onChange={set(f)} style={inp} onFocus={fo} onBlur={bl} />
         </div>
       ))}
+      
+      <div>
+        <label style={lbl}>Employment Type<span style={req}>*</span></label>
+        <select required value={data.employmentType || ''} onChange={set('employmentType')} style={inp} onFocus={fo} onBlur={bl}>
+          <option value="" disabled>Select Type</option>
+          {empTypes.map(et => <option key={et} value={et}>{et}</option>)}
+        </select>
+      </div>
+
+      {isPrimary && subReqs.length > 0 && (
+        <div>
+          <label style={lbl}>Specific Requirement<span style={req}>*</span></label>
+          <select required value={data.subRequirement || ''} onChange={set('subRequirement')} style={inp} onFocus={fo} onBlur={bl}>
+            <option value="" disabled>Select Specific Type</option>
+            {subReqs.map(sub => <option key={sub} value={sub}>{sub}</option>)}
+          </select>
+        </div>
+      )}
 
       {/* Address — full width */}
       <div style={{ gridColumn: '1 / -1' }}>
@@ -217,6 +238,7 @@ export default function ClientOnboarding() {
   // Pre-fill: shared links use opaque base64 `ref` token; internal nav uses plain state via `uid` etc.
   const refToken = params.get('ref');
   let urlLoanType = LOAN_TYPES[0].label, urlName = '', urlPhone = '', urlEmail = '', urlLeadUid = '';
+  let urlEmploymentType = '', urlSubRequirement = '';
   if (refToken) {
     try {
       const d = JSON.parse(atob(refToken));
@@ -225,6 +247,8 @@ export default function ClientOnboarding() {
       urlName     = d.name      || '';
       urlPhone    = d.phone     || '';
       urlEmail    = d.email     || '';
+      urlEmploymentType = d.employmentType || '';
+      urlSubRequirement = d.subRequirement || '';
     } catch { /* invalid token — ignore */ }
   } else {
     // internal "Fill Form" direct navigation still works
@@ -233,12 +257,14 @@ export default function ClientOnboarding() {
     urlName     = params.get('name')     || '';
     urlPhone    = params.get('phone')    || '';
     urlEmail    = params.get('email')    || '';
+    urlEmploymentType = params.get('employmentType') || '';
+    urlSubRequirement = params.get('subRequirement') || '';
   }
 
   const [loanType, setLoanType]   = useState(urlLoanType);
   const [tab, setTab]             = useState('applicant');
   const [hasCoApp, setHasCoApp]   = useState(false);
-  const [applicant, setApplicant] = useState({ ...EMPTY, name: urlName, phone: urlPhone, email: urlEmail });
+  const [applicant, setApplicant] = useState({ ...EMPTY, name: urlName, phone: urlPhone, email: urlEmail, employmentType: urlEmploymentType, subRequirement: urlSubRequirement });
   const [coApp, setCoApp]         = useState({ ...EMPTY });
   const [docs, setDocs]           = useState(() => initDocs(urlLoanType));
   const [coDocs, setCoDocs]       = useState(() => initDocs(urlLoanType));
@@ -302,7 +328,9 @@ export default function ClientOnboarding() {
     e.preventDefault();
 
     // Validate all mandatory applicant fields
-    const requiredFields = ['name', 'dob', 'phone', 'email', 'occupation', 'address', 'city', 'pincode'];
+    const requiredFields = ['name', 'dob', 'phone', 'email', 'occupation', 'address', 'city', 'pincode', 'employmentType'];
+    if (loanMeta.sub?.length > 0) requiredFields.push('subRequirement');
+    
     const missing = requiredFields.filter(f => !applicant[f]?.trim());
     if (missing.length > 0) {
       alert(`Please fill in all required fields for the Applicant:\n• ${missing.map(f => f.charAt(0).toUpperCase() + f.slice(1)).join('\n• ')}`);
@@ -310,7 +338,8 @@ export default function ClientOnboarding() {
     }
     // Validate co-applicant if added
     if (hasCoApp) {
-      const coMissing = requiredFields.filter(f => !coApp[f]?.trim());
+      const coReqFields = ['name', 'dob', 'phone', 'email', 'occupation', 'address', 'city', 'pincode', 'employmentType'];
+      const coMissing = coReqFields.filter(f => !coApp[f]?.trim());
       if (coMissing.length > 0) {
         alert(`Please fill in all required fields for the Co-Applicant:\n• ${coMissing.map(f => f.charAt(0).toUpperCase() + f.slice(1)).join('\n• ')}`);
         return;
@@ -478,6 +507,8 @@ export default function ClientOnboarding() {
                 data={tab === 'applicant' ? applicant : coApp}
                 onChange={tab === 'applicant' ? setApplicant : setCoApp}
                 prefix={tab}
+                isPrimary={tab === 'applicant'}
+                loanMeta={loanMeta}
               />
             </div>
 
