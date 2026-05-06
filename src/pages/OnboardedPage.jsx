@@ -134,8 +134,8 @@ function isBirthdayToday(dob) {
 }
 
 // ─── Admin Doc Row ─────────────────────────────────────────────
-// Shows one uploaded file slot. Admin gets Replace + Delete buttons.
-function AdminDocRow({ file, slotIndex, onbId, docKey, section, canEdit, onRefresh }) {
+// Shows one uploaded file slot. Owner gets Replace + Delete; Managers get Replace only.
+function AdminDocRow({ file, slotIndex, onbId, docKey, section, canEdit, canDelete, onRefresh }) {
   const fileRef = useRef();
 
   const downloadFile = () => {
@@ -221,10 +221,12 @@ function AdminDocRow({ file, slotIndex, onbId, docKey, section, canEdit, onRefre
             <Upload size={10} /> {file.base64 ? 'Replace' : 'Upload'}
           </button>
           {file.base64 ? (
-            <button onClick={handleDelete} title="Delete file"
-              style={{ background: '#fff1f2', border: '1px solid #fecaca', borderRadius: '6px', cursor: 'pointer', color: '#dc2626', display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.68rem', fontWeight: 700, padding: '0.15rem 0.45rem' }}>
-              <Trash2 size={10} /> Delete
-            </button>
+            canDelete && (
+              <button onClick={handleDelete} title="Delete file"
+                style={{ background: '#fff1f2', border: '1px solid #fecaca', borderRadius: '6px', cursor: 'pointer', color: '#dc2626', display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.68rem', fontWeight: 700, padding: '0.15rem 0.45rem' }}>
+                <Trash2 size={10} /> Delete
+              </button>
+            )
           ) : (
             slotIndex > 0 && (
               <button onClick={handleCancel} title="Cancel / Remove slot"
@@ -504,7 +506,7 @@ function ClientCard({ onb, isOwner, userId, onRefresh }) {
               {/* ── Applicant Documents ── */}
               <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.625rem' }}>
                 Applicant Documents
-                {canAccess && <span style={{ marginLeft: '0.5rem', fontSize: '0.6rem', background: '#fee2e2', color: '#dc2626', padding: '0.1rem 0.4rem', borderRadius: '99px', fontWeight: 700 }}>Can Edit / Delete</span>}
+                {canAccess && <span style={{ marginLeft: '0.5rem', fontSize: '0.6rem', background: isOwner ? '#fee2e2' : '#dbeafe', color: isOwner ? '#dc2626' : '#1d4ed8', padding: '0.1rem 0.4rem', borderRadius: '99px', fontWeight: 700 }}>{isOwner ? 'Can Edit / Delete' : 'Can Edit'}</span>}
               </div>
               {Object.entries(onb.documents || {}).map(([section, slots]) => {
                 const uploaded = (slots || []).filter(s => s.uploaded);
@@ -523,6 +525,7 @@ function ClientCard({ onb, isOwner, userId, onRefresh }) {
                           docKey="documents"
                           section={section}
                           canEdit={canAccess}
+                          canDelete={isOwner}
                           onRefresh={onRefresh}
                         />
                       ))}
@@ -543,7 +546,7 @@ function ClientCard({ onb, isOwner, userId, onRefresh }) {
                   <>
                     <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '1.5rem', marginBottom: '0.625rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                       <Users size={11} /> Co-Applicant Documents
-                      {canAccess && <span style={{ fontSize: '0.6rem', background: '#fee2e2', color: '#dc2626', padding: '0.1rem 0.4rem', borderRadius: '99px', fontWeight: 700 }}>Can Edit / Delete</span>}
+                      {canAccess && <span style={{ fontSize: '0.6rem', background: isOwner ? '#fee2e2' : '#dbeafe', color: isOwner ? '#dc2626' : '#1d4ed8', padding: '0.1rem 0.4rem', borderRadius: '99px', fontWeight: 700 }}>{isOwner ? 'Can Edit / Delete' : 'Can Edit'}</span>}
                     </div>
                     {Object.entries(onb.coDocuments || {}).map(([section, slots]) => {
                       const uploaded = (slots || []).filter(s => s.uploaded);
@@ -562,6 +565,7 @@ function ClientCard({ onb, isOwner, userId, onRefresh }) {
                                 docKey="coDocuments"
                                 section={section}
                                 canEdit={canAccess}
+                                canDelete={isOwner}
                                 onRefresh={onRefresh}
                               />
                             ))}
