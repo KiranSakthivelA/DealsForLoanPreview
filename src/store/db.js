@@ -181,8 +181,31 @@ export const syncToCloud = async (data) => {
   }
 };
 
-// Placeholder for Google Apps Script Webhook URL
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoO4-oWGgg6z4GzWvbgMyhgySt2yBLP0iSyXVrAsEPc9IHQ-wijU9fV7BL1tuRJLM/exec';
+// Helper — format ISO date string to DD/MM/YYYY HH:MM (readable, IST-aware)
+const formatDateTime = (iso) => {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    if (isNaN(d)) return iso; // fallback to raw string if invalid
+    const day   = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year  = d.getFullYear();
+    const hrs   = String(d.getHours()).padStart(2, '0');
+    const mins  = String(d.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year} ${hrs}:${mins}`;
+  } catch {
+    return iso;
+  }
+};
+
+// Helper — format date-only string (YYYY-MM-DD) to DD/MM/YYYY
+const formatDate = (str) => {
+  if (!str) return '';
+  // If it looks like YYYY-MM-DD, reformat
+  const m = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+  return str;
+};
 
 export const syncToSpreadsheet = async (lead) => {
   // Only sync if status is New, Interested, or Converted
@@ -197,13 +220,14 @@ export const syncToSpreadsheet = async (lead) => {
     'Sub Requirement':   lead.subRequirement     || '',
     'Employment Type':   lead.employmentType     || '',
     'Sales Person':      lead.salesPerson        || '',
-    'Date of Approach':  lead.dateOfApproach     || '',
-    'Follow Up Date':    lead.followUpDate       || '',
+    'Date of Approach':  formatDate(lead.dateOfApproach),
+    'Follow Up Date':    formatDate(lead.followUpDate),
     'Status':            lead.status             || 'New',
     'Assigned To':       lead.assignedTo         || '',
     'Remark':            lead.remark             || '',
     'Source':            lead.source             || '',
-    'Submitted At':      lead.createdAt          || '',
+    'Submitted At':      formatDateTime(lead.createdAt),
+    'Last Updated':      formatDateTime(lead.updatedAt),
     // Onboarding fields (populated when available)
     'Loan Amount':       lead.loanAmount         || '',
     'Address':           lead.address            || '',
@@ -222,6 +246,8 @@ export const syncToSpreadsheet = async (lead) => {
     console.error('Spreadsheet sync error:', e);
   }
 };
+
+
 
 export const fetchFromCloud = async () => {
   try {
@@ -369,31 +395,31 @@ export function exportToCSV(submissions) {
   ];
 
   const rows = submissions.map((s) => [
-    s.uid                   || '',
-    s.fullName              || '',
-    s.phone                 || '',
-    s.email                 || '',
-    s.loanType || s.requirement || '',
-    s.subRequirement        || '',
-    s.employmentType        || '',
-    s.salesPerson           || '',
-    s.dateOfApproach        || '',
-    s.followUpDate          || '',
-    s.status                || 'New',
-    s.assignedTo            || 'Unassigned',
-    s.remark                || '',
-    s.source                || '',
-    s.dob                   || '',
-    s.age                   || '',
-    s.gender                || '',
-    s.address               || '',
-    s.city                  || '',
-    s.state                 || '',
-    s.pincode               || '',
-    s.aadharNumber          || '',
-    s.panNumber             || '',
-    s.loanAmount            || '',
-    s.createdAt             || '',
+    s.uid                          || '',
+    s.fullName                     || '',
+    s.phone                        || '',
+    s.email                        || '',
+    s.loanType || s.requirement    || '',
+    s.subRequirement               || '',
+    s.employmentType               || '',
+    s.salesPerson                  || '',
+    formatDate(s.dateOfApproach),
+    formatDate(s.followUpDate),
+    s.status                       || 'New',
+    s.assignedTo                   || 'Unassigned',
+    s.remark                       || '',
+    s.source                       || '',
+    formatDate(s.dob),
+    s.age                          || '',
+    s.gender                       || '',
+    s.address                      || '',
+    s.city                         || '',
+    s.state                        || '',
+    s.pincode                      || '',
+    s.aadharNumber                 || '',
+    s.panNumber                    || '',
+    s.loanAmount                   || '',
+    formatDateTime(s.createdAt),
   ]);
 
   const csvContent = [headers, ...rows]
