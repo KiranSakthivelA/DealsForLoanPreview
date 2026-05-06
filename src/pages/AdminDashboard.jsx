@@ -9,7 +9,7 @@ import {
   getAllSubmissions, deleteSubmission, exportToCSV, REQUIRED_DOCUMENTS, 
   MOCK_USERS, LEAD_STATUSES, updateLeadStatus, addMeetingNote,
   getAllEstimates, fetchFromCloud, getAllOnboardings,
-  grantOnboardingAccess, revokeOnboardingAccess, syncToSpreadsheet
+  grantOnboardingAccess, revokeOnboardingAccess
 } from '../store/db';
 import ClientForm from './ClientForm';
 
@@ -178,23 +178,7 @@ export default function AdminDashboard({ user, initialTab = 'leads' }) {
     setShowExportMenu(false);
   };
 
-  const handleForceSyncSheet = async () => {
-    if (!window.confirm("This will push all existing New, Interested, and Converted leads to your Google Sheet. Proceed?")) return;
-    
-    let count = 0;
-    for (const s of submissions) {
-      if (['New', 'Interested', 'Converted'].includes(s.status)) {
-        try {
-          await syncToSpreadsheet(s);
-          count++;
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    }
-    alert(`Successfully synced ${count} leads to Google Sheets!`);
-    setShowExportMenu(false);
-  };
+
 
   const filteredSubmissions = submissions.filter(s => 
     (s.uid || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -322,17 +306,12 @@ export default function AdminDashboard({ user, initialTab = 'leads' }) {
                  <Download size={14} /> <span className="mobile-hide">Export</span> <ChevronDown size={12} style={{ marginLeft: '0.2rem' }} />
               </button>
               {showExportMenu && (
-                <div style={{ position: 'absolute', top: '110%', right: 0, backgroundColor: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: '0.5rem', zIndex: 100, minWidth: '200px', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                <div style={{ position: 'absolute', top: '110%', right: 0, backgroundColor: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: '0.5rem', zIndex: 100, minWidth: '180px', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                   <button onClick={handleExportCSV} style={{ padding: '0.6rem 1rem', background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                     Excel (CSV)
                   </button>
                   <button onClick={handleExportPDF} style={{ padding: '0.6rem 1rem', background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                     PDF Document
-                  </button>
-                  <div style={{ borderTop: '1px solid #e2e8f0', margin: '0.2rem 0' }}></div>
-                  <label style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', padding: '0.4rem 1rem 0', display: 'block', letterSpacing: '0.05em' }}>Spreadsheet</label>
-                  <button onClick={handleForceSyncSheet} style={{ padding: '0.6rem 1rem', background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 600, color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.3rem' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f0fdf4'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                    Push All to Google Sheets
                   </button>
                 </div>
               )}

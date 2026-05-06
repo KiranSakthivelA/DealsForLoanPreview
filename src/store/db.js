@@ -354,6 +354,7 @@ export function addMeetingNote(uid, note, isWhatsApp = false) {
     });
     all[idx].updatedAt = new Date().toISOString();
     localStorage.setItem(DB_KEY, JSON.stringify(all));
+    syncToSpreadsheet(all[idx]); // auto-sync on every log entry
   }
 }
 
